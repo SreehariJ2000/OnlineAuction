@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class AutionAppConfig(AppConfig):
+class AuctionAppConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'aution_app'
+    name = 'Auction_app'
