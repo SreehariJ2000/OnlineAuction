@@ -4,5 +4,5 @@ from auth_app import views
 
 urlpatterns = [
     
-    path('signup',views.Sign_up,name='signup')
+    path('signup/',views.Sign_up,name='signup')
 ]
