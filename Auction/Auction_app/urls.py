@@ -4,5 +4,8 @@ from Auction_app import views
 
 urlpatterns = [
     
-    path('',views.index,name='index')
+    path('',views.index,name='index'),
+    path('customerhome/',views.CustomerHome,name='customerhome'),
+    
+
 ]

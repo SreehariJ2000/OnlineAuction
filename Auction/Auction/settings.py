@@ -130,5 +130,8 @@ STATICFILES_DIRS=[
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MESSAGE_TAGS={
-    messages.ERROR: 'danger ', # bootstrap 5 class for error message
+    messages.ERROR:'danger', # bootstrap 5 class for error message
 }
+
+
+AUTH_USER_MODEL = "auth_app.User"
