@@ -5,10 +5,40 @@ from .models import User
 from django.contrib.auth import authenticate, login,logout
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
+#from django.utils.encoding import DjangoUnicodeDecodeError
 
 
+from django.views.generic import View
+from .utils import *
+
+#for activating user account
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_decode,urlsafe_base64_encode
+from django.utils.encoding import force_bytes,force_str
+from django.template.loader import render_to_string
+#from django.urls import NoReverseMatch,reverse
 # Create your views here.
 
+#email
+#from django.core.mail import send_mail,EmailMultiAlternatives
+#from django.core.mail import BadHeaderError,send_mail
+#from django.core import mail
+from django.conf import settings
+from django.core.mail import EmailMessage
+
+#threading
+import threading
+
+#reset passwor generater
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+
+
+class EmailThread(threading.Thread):
+       def __init__(self, email_message):
+              super().__init__()
+              self.email_message=email_message
+       def run(self):
+              self.email_message.send()
 
 
 def Sign_up(request):
@@ -30,11 +60,46 @@ def Sign_up(request):
                       pass
 
             user=User.objects.create_user(first_name=fname,last_name=lname,email=email,password=password,username=username,role='CUSTOMER')
-              #make the user inactive  user.is_active=False
+            user.is_active=False  #make the user inactive
             user.save()
-            return redirect('/auth_app/handlelogin')
+            current_site=get_current_site(request)   #get link of site
+            email_subject="Activate your account"
+            message=render_to_string('auth/activate.html',{
+                   'user':user,
+                   'domain':current_site.domain,
+                   'uid':urlsafe_base64_encode(force_bytes(user.pk)),
+                   'token':generate_token.make_token(user)
+
+
+            })
+
+            email_message=EmailMessage(email_subject,message,settings.EMAIL_HOST_USER,[email],)
+            EmailThread(email_message).start()
+            messages.info(request,"Active your account by clicking the link send to your email")
+
+
+
+           
+            return redirect('/auth_app/handlelogin/')
+            
+             
+            
     return render(request,'auth/signup.html')
         
+
+class ActivateAccountView(View):
+    def get(self,request,uidb64,token):
+        try:
+            uid=force_str(urlsafe_base64_decode(uidb64))
+            user=User.objects.get(pk=uid)
+        except Exception as identifier:
+            user=None
+        if user is not None and generate_token.check_token(user,token):
+            user.is_active=True
+            user.save()
+            messages.info(request,"Account activated sucessfully")
+            return redirect('/auth_app/handlelogin/')
+        return render(request,"auth/activatefail.html")
 
 
 
