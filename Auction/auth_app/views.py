@@ -1,8 +1,11 @@
 from django.shortcuts import render,redirect
-from django.http import HttpResponse
+from django.http import HttpResponse,HttpResponseRedirect
 from django.contrib import messages
 from .models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login,logout
+from django.urls import reverse
+from django.contrib.auth.decorators import login_required
+
 
 # Create your views here.
 
@@ -29,7 +32,7 @@ def Sign_up(request):
             user=User.objects.create_user(first_name=fname,last_name=lname,email=email,password=password,username=username,role='CUSTOMER')
               #make the user inactive  user.is_active=False
             user.save()
-            return HttpResponse("customer sign up sucessfully")
+            return redirect('/auth_app/handlelogin')
     return render(request,'auth/signup.html')
         
 
@@ -46,6 +49,7 @@ def handlelogin(request):
 
             if myuser is not None:
                    login(request,myuser)
+                        #request.session['username'] =myuser.username
                    if myuser.role=='CUSTOMER':
                         messages.success(request,"Login Sucess!!!")
                         return redirect('/customerhome')
@@ -60,3 +64,11 @@ def handlelogin(request):
                    messages.error(request,"Some thing went wrong")
                    return redirect('/auth_app/handlelogin')
      return render(request,'auth/login.html')
+
+
+def handlelogout(request):
+    if request.user.is_authenticated:
+        logout(request)
+
+    # Redirect to the login page or any other page you prefer
+    return redirect('/') 

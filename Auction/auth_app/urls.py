@@ -6,5 +6,6 @@ urlpatterns = [
     
     path('signup/',views.Sign_up,name='signup'),
     path('handlelogin/',views.handlelogin,name='handlelogin'),
+    path('handlelogout/',views.handlelogout,name='handlelogout'),
 
 ]

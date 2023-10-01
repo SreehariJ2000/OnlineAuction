@@ -57,9 +57,7 @@
           <li><a class="nav-link scrollto active" href="#hero">Home</a></li>
           <li><a class="nav-link scrollto" href="#about">About</a></li>
           <li><a class="nav-link scrollto" href="#services">Services</a></li>
-          <li><a class="nav-link   scrollto" href="#portfolio">Portfolio</a></li>
           <li><a class="nav-link scrollto" href="#team">Team</a></li>
-          
           <li><a class="nav-link scrollto" href="#contact">Contact</a></li>
           
 
@@ -70,17 +68,16 @@
             <ul>
               <li><a href="#">My profile</a></li>
               <li><a href="#">Settings</a></li>
-              <li><a href="/contact">log out</a></li>
-              <li><a href="#">Deep Drop Down 4</a></li>
-              <li><a href="#">Deep Drop Down 5</a></li>
+              <li><a href="{% url "handlelogout" %}">log out</a></li>
+``
             </ul>
           </li>
 
                 {% else %}
 
          
-          <li><a class="getstarted scrollto" href="#about">login</a></li>
-          <li><a class="getstarted scrollto" href="#about">signup</a></li>
+          <li><a class="getstarted scrollto" href="/auth_app/handlelogin">login</a></li>
+          <li><a class="getstarted scrollto" href="/auth_app/signup">signup</a></li>
 
           {% endif %} 
         </ul>
@@ -117,7 +114,7 @@
 <section id="clients" class="clients section-bg">  
 
 
-  <h1> section 2 </h1>
+  <h1> section 2 </h1>   
 
       <div class="container">
 
@@ -194,19 +191,7 @@
   <!-- ======= Footer ======= -->
   <footer id="footer">
 
-    <div class="footer-newsletter">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-lg-6">
-            <h4>Join Our Newsletter</h4>
-            <p>Tamen quem nulla quae legam multos aute sint culpa legam noster magna</p>
-            <form action="" method="post">
-              <input type="email" name="email"><input type="submit" value="Subscribe">
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
+    
 
     <div class="footer-top">
       <div class="container">
