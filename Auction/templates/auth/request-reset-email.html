@@ -64,7 +64,7 @@
     <div class="background">
         <!-- Form container -->
         <div class="form-container">
-            <h2 class="mb-4">Sign In</h2>
+            <h2 class="mb-4">reset password</h2>
             <!-- Sign-in form -->
 
             
@@ -78,7 +78,7 @@
 
                 {% endfor %}
 
-            <form method="post" action="">
+            <form method="post" action="/auth_app/request-reset-email/">
                 {% csrf_token %}
 
 
@@ -86,19 +86,15 @@
                     <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
                 </div>
                 <div class="mb-3">
-                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
-                </div>
-                <div class="mb-3">
                     <button type="submit" class="btn btn-signin btn-block">Sign In</button>
                 </div>
+                
             </form>
             <!-- Sign-up and Forgot Password links -->
             <div class="sign-up-link">
-                Don't have an account? <a href="">Sign Up</a>
+                go back ? <a href="/auth_app/handlelogin">login</a>
             </div>
-            <div class="forgot-password-link">
-                <a href="/auth_app/request-reset-email">Forgot Password?</a>
-            </div>
+            
         </div>
     </div>
 
