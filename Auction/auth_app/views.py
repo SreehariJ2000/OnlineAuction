@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate, login,logout
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.utils.encoding import DjangoUnicodeDecodeError
-
+import re
 
 from django.views.generic import View
 from .utils import *
@@ -41,6 +41,23 @@ class EmailThread(threading.Thread):
               self.email_message.send()
 
 
+
+
+
+def is_valid_email(email):
+    email_pattern = r'^[a-z0-9]+@[a-z0-9.-]+\.[a-z]+$'
+    return re.match(email_pattern, email) is not None
+
+#def is_valid_password(password)
+ #   password_pattern = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,}$'
+  #  return re.match(password_pattern, password) is not None
+
+  #if not is_valid_password(password):
+   
+   #               messages.warning(request,"password must in format (Abc1234#)")
+    #              return render(request,'auth/signup.html')
+
+
 def Sign_up(request):
     if request.method=="POST":
             fname=request.POST['first_name']
@@ -49,6 +66,12 @@ def Sign_up(request):
             username=email
             password=request.POST['password']
             confirm_password=request.POST['confirm_password']
+
+            if not is_valid_email(email):
+                  messages.warning(request,"enter a valid email")
+                  return render(request,'auth/signup.html')
+
+            
             if password!=confirm_password:
                     messages.warning(request,"password is not matching")
                     return render(request,'auth/signup.html')
@@ -116,10 +139,10 @@ def handlelogin(request):
                    login(request,myuser)
                         #request.session['username'] =myuser.username
                    if myuser.role=='CUSTOMER':
-                        messages.success(request,"Login Sucess!!!")
+                        
                         return redirect('/customerhome')
                    elif myuser.role=='SELLER':
-                        messages.success(request,"Login Sucess!!!")
+                        
                         return HttpResponse("seller login")
                    elif myuser.role=='ADMIN':
                           messages.success(request,"Login Sucess!!!")
