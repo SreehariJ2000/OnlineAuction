@@ -146,3 +146,7 @@ EMAIL_HOST_USER='hsree524@gmail.com'
 EMAIL_HOST_PASSWORD='rmxg esmu otny zohs'
 
 
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+SESSION_COOKIE_NAME = "sessionid"
+SESSION_COOKIE_AGE = 600
+LOGIN_URL='/handlelogin/'

@@ -66,7 +66,7 @@
     <!-- ======= Header ======= -->
     <header id="header" class="fixed-top">
       <div class="container d-flex align-items-center">
-        <h1 class="logo me-auto"><a href="index.html">AntiqueTreasure</a></h1>
+        <h1 class="logo me-auto"><a href="index.html">Antique Treasure</a></h1>
         <!-- Uncomment below if you prefer to use an image logo -->
         <!-- <a href="index.html" class="logo me-auto"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>-->
 
@@ -79,11 +79,27 @@
             
 
             <li><a class="nav-link scrollto" href="#contact">Contact</a></li>
-            <li><a class="getstarted scrollto" href="#">Become seller</a></li>
-            <li><a class="getstarted scrollto" href="http://127.0.0.1:8000/auth_app/handlelogin/">Login</a></li>
-            <li>
-              <a class="getstarted scrollto" href="http://127.0.0.1:8000/auth_app/signup/">Sign up</a>
-            </li>
+
+            
+          {%if request.user.is_authenticated  and request.user.is_active %}
+
+
+          <li class="dropdown"><a href="#"><span>Hello {{user.first_name}}</span> <i class="bi bi-chevron-right"></i></a>
+            <ul>
+              <li><a href="#">My profile</a></li>
+              <li><a href="#">Settings</a></li>
+              <li><a href="{% url "handlelogout" %}">log out</a></li>
+``
+            </ul>
+          </li>
+		   {% else %}
+		   <li><a class="getstarted scrollto" href="#">Become seller</a></li>
+
+         
+          <li><a class="getstarted scrollto" href="/auth_app/handlelogin">login</a></li>
+          <li><a class="getstarted scrollto" href="/auth_app/signup">signup</a></li>
+
+          {% endif %} 
           </ul>
           <i class="bi bi-list mobile-nav-toggle"></i>
         </nav>

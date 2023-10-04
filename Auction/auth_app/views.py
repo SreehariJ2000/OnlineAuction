@@ -137,6 +137,7 @@ def handlelogin(request):
 
             if myuser is not None:
                    login(request,myuser)
+                   request.session['username']=username
                         #request.session['username'] =myuser.username
                    if myuser.role=='CUSTOMER':
                         
@@ -151,7 +152,11 @@ def handlelogin(request):
             else:
                    messages.error(request,"Some thing went wrong")
                    return redirect('/auth_app/handlelogin')
-     return render(request,'auth/login.html')
+     response = render(request,'auth/login.html')
+     response['Cache-Control'] = 'no-store,must-revalidate'
+     return response
+    
+    # return render(request,'auth/login.html')
 
 
 
@@ -233,10 +238,7 @@ class SetNewPassword(View):
 
 
 
-
 def handlelogout(request):
     if request.user.is_authenticated:
         logout(request)
-
-    # Redirect to the login page or any other page you prefer
-    return redirect('/') 
+    return redirect('handlelogin')
