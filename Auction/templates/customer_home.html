@@ -1,3 +1,20 @@
 {% extends "base.html" %}
 
 
+
+{% block style %}
+<style>
+    /* Define the CSS styles for the div */
+    .custom-div {
+        height: 700px; /* Set the height to 700 pixels */
+        background-color: #f0f0f0; /* Optional: Add a background color for visibility */
+    }
+</style>
+{% endblock style %}
+
+{% block body %}
+<div class="custom-div">
+    <h1>   CUSTOMER   page </h1>
+</div>
+
+{% endblock body %}

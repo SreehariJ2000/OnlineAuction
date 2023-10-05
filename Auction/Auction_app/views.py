@@ -11,7 +11,7 @@ def index(request):
 def about(request):
     return render(request,'about.html')
 
-@login_required
+
 def CustomerHome(request):
     if 'username' in request.session:
         response = render(request,'customer_home.html')

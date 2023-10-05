@@ -187,22 +187,25 @@
         displayErrorMessage(confirmPassword, confirmPasswordError, "password dosenot match");
       }
     });
-  
-    /*
-    // Add an event listener to the form submit event
-    var form = document.getElementById("signup-form"); // Replace "your_form_id" with your actual form ID
-    form.addEventListener("submit", function (event) {
-      
-  
-      if (firstName.value.trim() === "") {
-        displayErrorMessage(firstName, firstNameError, "First name cannot be empty.");
-        event.preventDefault(); // Prevent form submission
+
+
+    function submitForm(e) {
+      // Check if any error messages exist
+      if (
+        firstNameError.textContent ||
+        lastNameError.textContent ||
+        emailError.textContent ||
+        passwordError.textContent ||
+        confirmPasswordError.textContent
+      ) {
+        e.preventDefault(); // Prevent form submission if there are errors
       }
+    }
   
-      // Repeat similar checks for other fields...
+    // Event listener for form submission
+    document.getElementById("signup-form").addEventListener("submit", submitForm);
   
-      // If all fields are valid, allow form submission
-    });     */
+   
   });
   
 

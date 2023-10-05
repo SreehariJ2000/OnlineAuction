@@ -1,10 +1,8 @@
 from django.shortcuts import render,redirect
-from django.http import HttpResponse,HttpResponseRedirect
+from django.http import HttpResponse
 from django.contrib import messages
 from .models import User
 from django.contrib.auth import authenticate, login,logout
-from django.urls import reverse
-from django.contrib.auth.decorators import login_required
 from django.utils.encoding import DjangoUnicodeDecodeError
 import re
 
@@ -16,13 +14,10 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_decode,urlsafe_base64_encode
 from django.utils.encoding import force_bytes,force_str
 from django.template.loader import render_to_string
-from django.urls import NoReverseMatch,reverse
+
 # Create your views here.
 
 #email
-from django.core.mail import send_mail,EmailMultiAlternatives
-from django.core.mail import BadHeaderError,send_mail
-from django.core import mail
 from django.conf import settings
 from django.core.mail import EmailMessage
 
@@ -48,14 +43,7 @@ def is_valid_email(email):
     email_pattern = r'^[a-z0-9]+@[a-z0-9.-]+\.[a-z]+$'
     return re.match(email_pattern, email) is not None
 
-#def is_valid_password(password)
- #   password_pattern = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,}$'
-  #  return re.match(password_pattern, password) is not None
 
-  #if not is_valid_password(password):
-   
-   #               messages.warning(request,"password must in format (Abc1234#)")
-    #              return render(request,'auth/signup.html')
 
 
 def Sign_up(request):
@@ -85,7 +73,7 @@ def Sign_up(request):
             user=User.objects.create_user(first_name=fname,last_name=lname,email=email,password=password,username=username,role='CUSTOMER')
             user.is_active=False  #make the user inactive
             user.save()
-            current_site=get_current_site(request)   #get link of site
+            current_site=get_current_site(request)  
             email_subject="Activate your account"
             message=render_to_string('auth/activate.html',{
                    'user':user,
