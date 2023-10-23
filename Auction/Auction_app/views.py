@@ -1,6 +1,7 @@
 from django.shortcuts import render,redirect
-from django.contrib.auth.decorators import login_required
+
 from django.views.decorators.cache import never_cache
+from django.contrib.auth import get_user_model
 
 # Create your views here.
 @never_cache
@@ -20,3 +21,12 @@ def CustomerHome(request):
     else:
         return redirect('handlelogin')
     #return render(request,'customer_home.html')
+
+
+
+def adminreg(request):
+    User = get_user_model()
+    user_profiles = User.objects.filter(role='CUSTOMER')
+    context = {'user_profiles': user_profiles}
+    
+    return render(request, 'admin.html', context)

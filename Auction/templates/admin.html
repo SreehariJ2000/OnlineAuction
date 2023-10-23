@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Profiles</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            background-color: #007bff;
+            color: #fff;
+            padding: 20px;
+        }
+
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #fff;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+
+        /* Sidebar styles... */
+
+        /* Content styles... */
+
+        /* Navbar styles */
+        .navbar {
+            overflow: hidden;
+            background-color: #333;
+            width: 100%; /* Make the navbar full width */
+        }
+
+        .navbar a {
+            display: block;
+            float: left; /* Float the links to the left side */
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        /* Add a logout button to the right side of the navbar */
+        .logout-button {
+            float: right; /* Float the button to the right */
+            padding: 14px 16px;
+        }
+
+        .logout-button a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .logout-button a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar">
+        <a href="#navbar">Navbar</a>
+        <a href="#profile">Profile</a>
+        <a href="#field">Field</a>
+        <!-- Add a logout button to the right side -->
+        <div class="logout-button">
+            <a href="/">Logout</a>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+
+    <!-- Content -->
+    <h1>User Profiles</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Role</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Loop through user profiles and display them here -->
+            {% for user_profile in user_profiles %}
+            <tr>
+                <td>{{ user_profile.first_name }}</td>
+                <td>{{ user_profile.last_name }}</td>
+                <td>{{ user_profile.role }}</td>
+                <td>{{ user_profile.email }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

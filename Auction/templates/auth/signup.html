@@ -30,7 +30,19 @@
   <div class="row justify-content-center">
     <div class="col-md-6">
 
-      {% for message in messages %}
+      
+
+
+
+
+
+      <div class="card">
+        <div class="card-header">
+          <h4>Sign Up</h4>
+        </div>
+        <div class="card-body">
+          
+          {% for message in messages %}
 
           <div class="alert alert-{{messages.tags}}" role="alert">
             <strong>{{message}}</strong>
@@ -43,18 +55,6 @@
           </div>
 
           {% endfor %}
-
-
-
-
-
-      <div class="card">
-        <div class="card-header">
-          <h4>Sign Up</h4>
-        </div>
-        <div class="card-body">
-          
-
           <form action="" method="POST" id="signup-form">
             {% csrf_token %}
             <!-- First Name and Last Name on the same row with spacing -->
@@ -154,13 +154,18 @@
 
     email.addEventListener("input", function () {
       clearErrorMessage(email, emailError);
-      const emailRegex = /^[a-z0-9]+@[^\s@]+\.[^\s@]+$/; // Allow lowercase letters, numbers, and any domain name
-      if (email.value.trim() === "") {
+      const emailRegex = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]{2,})$/;
+      const emailValue = email.value.trim(); // Trimmed email value
+    
+      if (emailValue === "") {
         displayErrorMessage(email, emailError, "Email cannot be empty.");
-      } else if (!emailRegex.test(email.value)) {
-        displayErrorMessage(email, emailError, "Please enter a valid email address.");
+      } else if (emailValue.length > 254) {
+        displayErrorMessage(email, emailError, "Email address is too long.");
+      } else if (!emailRegex.test(emailValue)) {
+        displayErrorMessage(email, emailError, "Invalid email address. Please enter a valid email address.");
       }
     });
+    
     
     
     

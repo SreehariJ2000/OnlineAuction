@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+
+{% block style %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<style>
+  /* Add a hover animation to the Update button */
+  .animated-btn {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .animated-btn:hover {
+    background-color: #007bff; /* Change to your desired color */
+    color: #fff; /* Change to your desired color */
+  }
+
+  /* Set the body background color */
+  body {
+    background-color: orange; /* Change to your desired background color */
+  }
+</style>
+
+{% endblock style %}
+
+
+
+
+{% block body %}
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+     
+      <div class="card">
+        <div class="card-header">
+         
+          <h2 class="text-center">Update Profile</h2>
+        </div>
+        <div class="card-body">
+          {% for message in messages %}
+
+          <div class="alert alert-{{message.tags}}" role="alert">
+            <strong>{{message}}</strong>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="alert"
+              aria-label="Close"
+            ></button>
+          </div>
+          
+          {% endfor %}
+          
+          <form id="update-profile-form" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="id_first_name">First Name:</label>
+              <input type="text" name="first_name" class="form-control" id="id_first_name" value="{{ user.first_name }}">
+              <span id="first-name-error" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+              <label for="id_last_name">Last Name:</label>
+              <input type="text" name="last_name" class="form-control" id="id_last_name" value="{{ user.last_name }}">
+              <span id="last-name-error" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+              <label for="id_email">Email:</label>
+              <input type="email" name="email" class="form-control" id="id_email" value="{{ user.email }}">
+              <span id="email-error" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+              <label for="id_phone">Phone:</label>
+              <input type="text" name="phone" class="form-control" id="id_phone" value="{{user.profile.phone}}">
+              <span id="phone-error" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+              <label for="id_bidder_id">Bidder Username:</label>
+              <input type="text" name="bidder_id" class="form-control" id="id_bidder_id" value="{{user.profile.bidder_id}}">
+              <span id="bidder-username-error" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block animated-btn">Update</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  $(document).ready(function() {
+    // Reset all error messages initially
+    $('.text-danger').text('');
+
+    // Attach event listeners to input fields for real-time validation
+
+    // Validate First Name
+    $('#id_first_name').on('input', function() {
+      var firstName = $(this).val();
+      if (firstName.trim() === '') {
+        $('#first-name-error').text('First name cannot be empty.');
+      } else if (!/^[A-Za-z]+$/.test(firstName)) {
+        $('#first-name-error').text('First name must contain only characters.');
+      } else {
+        $('#first-name-error').text('');
+      }
+    });
+
+    // Validate Last Name
+    $('#id_last_name').on('input', function() {
+      var lastName = $(this).val();
+      if (lastName.trim() === '') {
+        $('#last-name-error').text('Last name cannot be empty.');
+      } else if (!/^[A-Za-z]+$/.test(lastName)) {
+        $('#last-name-error').text('Last name must contain only characters.');
+      } else {
+        $('#last-name-error').text('');
+      }
+    });
+
+    // Validate Phone Number
+    $('#id_phone').on('input', function() {
+      var phone = $(this).val();
+      var phoneRegex = /^[986]\d{9}$/;
+      if (!phoneRegex.test(phone)) {
+        $('#phone-error').text('Phone number should start with 9, 8, or 6 and have 10 digits.');
+      } else {
+        $('#phone-error').text('');
+      }
+    });
+
+    // Validate Bidder Username
+    $('#id_bidder_id').on('input', function() {
+      var bidderUsername = $(this).val();
+      if (!/^(?=.*[0-9])(?=.*[A-Za-z]).{8,}$/.test(bidderUsername)) {
+        $('#bidder-username-error').text('Bidder Username should have at least 8 characters with a mix of numbers and characters.');
+      } else {
+        $('#bidder-username-error').text('');
+      }
+    });
+
+    // Validate Email
+    $('#id_email').on('input', function() {
+      var email = $(this).val();
+      var emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+      if (!emailRegex.test(email)) {
+        $('#email-error').text('Invalid email format.');
+      } else {
+        $('#email-error').text('');
+      }
+    });
+
+    // Attach form submit handler for final validation
+    $('#update-profile-form').on('submit', function(e) {
+      // Check for any remaining error messages
+      if ($('.text-danger').text() !== '') {
+        console.log('Form submit prevent');
+        e.preventDefault();
+        console.log('Form submit preventing due to validation errors');
+      }
+    });
+  });
+</script>
+
+
+
+{% endblock body %}
+
+

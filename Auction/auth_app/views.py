@@ -26,6 +26,11 @@ import threading
 
 #reset passwor generater
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from .models import *
+from django.http import JsonResponse
+from django.views import View
+from .models import Profile 
+
 
 
 class EmailThread(threading.Thread):
@@ -134,11 +139,11 @@ def handlelogin(request):
                         
                         return HttpResponse("seller login")
                    elif myuser.role=='ADMIN':
-                          messages.success(request,"Login Sucess!!!")
-                          return HttpResponse("Admin login ")
+                          
+                          return redirect('/adminreg')
                           
             else:
-                   messages.error(request,"Some thing went wrong")
+                   messages.error(request,"enter valid credentials")
                    return redirect('/auth_app/handlelogin')
      response = render(request,'auth/login.html')
      response['Cache-Control'] = 'no-store,must-revalidate'
@@ -230,3 +235,82 @@ def handlelogout(request):
     if request.user.is_authenticated:
         logout(request)
     return redirect('handlelogin')
+
+
+
+
+  # Import your Profile model
+
+def update_profile(request):
+    if request.method == 'POST':
+        # Process the form data and update the user's profile
+        first_name = request.POST['first_name']
+        last_name = request.POST['last_name']
+        email = request.POST['email']
+        phone = request.POST['phone']
+        bidder_id = request.POST['bidder_id']
+        if User.objects.filter(username=email).exclude(id=request.user.id).exists():
+            messages.warning(request, "Email is already taken")
+            return redirect('update-profile')  # Redirect to the same page with the warning message
+
+        # Validate phone
+        if Profile.objects.filter(phone=phone).exclude(user=request.user).exists():
+            messages.warning(request, "Phone number is already taken")
+            return redirect('update-profile')  # Redirect to the same page with the warning message
+
+        # Validate bidder username
+        if Profile.objects.filter(bidder_id=bidder_id).exclude(user=request.user).exists():
+            messages.warning(request, "Bidder Username is already taken")
+            return redirect('update-profile')
+        
+        if email != request.user.email:
+            user=request.user
+            user.email=email
+            user.username=email
+            user.is_active=False  #make the user inactive
+            user.save()
+            
+            
+            current_site=get_current_site(request)  
+            email_subject="Activate your account"
+            message=render_to_string('auth/activate.html',{
+                   'user':user,
+                   'domain':current_site.domain,
+                   'uid':urlsafe_base64_encode(force_bytes(user.pk)),
+                   'token':generate_token.make_token(user)
+
+
+            })
+
+            email_message=EmailMessage(email_subject,message,settings.EMAIL_HOST_USER,[email],)
+            EmailThread(email_message).start()
+            messages.info(request,"Active your account by clicking the link send to your email")
+            logout(request)
+           
+            return redirect('/auth_app/handlelogin/')
+            
+        
+        # Update the User model fields
+        user = request.user
+        user.first_name = first_name
+        user.last_name = last_name
+        user.username=email
+        user.email = email
+        user.save()
+        
+        # Update the Profile model fields
+        profile, created = Profile.objects.get_or_create(user=user)
+        profile.phone = phone
+        profile.bidder_id = bidder_id
+        profile.save()
+        
+        # Logout the user and redirect to the signup page
+        messages.success(request,'profile updated')
+        return redirect('update-profile')
+    else:
+        return render(request, 'auth/update_profile.html', {'user': request.user})
+
+
+  
+
+ 

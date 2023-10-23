@@ -30,6 +30,9 @@
 
   <!-- Template Main CSS File -->
   <link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
+  <!-- Include jQuery first -->
+
+
 
   <!-- =======================================================
   * Template Name: Arsha
@@ -66,7 +69,7 @@
 
           <li class="dropdown"><a href="#"><span>Hello {{user.first_name}}</span> <i class="bi bi-chevron-right"></i></a>
             <ul>
-              <li><a href="#">My profile</a></li>
+              <li><a href="{% url "update-profile" %}">My profile</a></li>
               <li><a href="#">Settings</a></li>
               <li><a href="{% url "handlelogout" %}">log out</a></li>
 
