@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+
+  <style>
+
+    /* all */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+:root {
+  --main-blue: #71b7e6;
+  --main-purple: #9b59b6;
+  --main-grey: #ccc;
+  --sub-grey: #d9d9d9;
+}
+
+body {
+  display: flex;
+  height: 100vh;
+  justify-content: center; /*center vertically */
+  align-items: center; /* center horizontally */
+  background: linear-gradient(135deg, var(--main-blue), var(--main-purple));
+  padding: 10px;
+}
+/* container and form */
+.container {
+  max-width: 700px;
+  width: 100%;
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 5px;
+  
+  margin-top: 300px;
+}
+.container .title {
+  font-size: 25px;
+  font-weight: 500;
+  position: relative;
+}
+
+.container .title::before {
+  content: "";
+  position: absolute;
+  height: 3.5px;
+  width: 30px;
+  background: linear-gradient(135deg, var(--main-blue), var(--main-purple));
+  left: 0;
+  bottom: 0;
+}
+
+.container form .user__details {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin: 20px 0 12px 0;
+}
+/* inside the form user details */
+form .user__details .input__box {
+  width: calc(100% / 2 - 20px);
+  margin-bottom: 15px;
+}
+
+.user__details .input__box .details {
+  font-weight: 500;
+  margin-bottom: 5px;
+  display: block;
+}
+.user__details .input__box input {
+  height: 45px;
+  width: 100%;
+  outline: none;
+  border-radius: 5px;
+  border: 1px solid var(--main-grey);
+  padding-left: 15px;
+  font-size: 16px;
+  border-bottom-width: 2px;
+  transition: all 0.3s ease;
+}
+
+.user__details .input__box input:focus,
+.user__details .input__box input:valid {
+  border-color: var(--main-purple);
+}
+
+/* inside the form gender details */
+
+form .gender__details .gender__title {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+form .gender__details .category {
+  display: flex;
+  width: 80%;
+  margin: 15px 0;
+  justify-content: space-between;
+}
+
+.gender__details .category label {
+  display: flex;
+  align-items: center;
+}
+
+.gender__details .category .dot {
+  height: 18px;
+  width: 18px;
+  background: var(--sub-grey);
+  border-radius: 50%;
+  margin: 10px;
+  border: 5px solid transparent;
+  transition: all 0.3s ease;
+}
+
+#dot-1:checked ~ .category .one,
+#dot-2:checked ~ .category .two,
+#dot-3:checked ~ .category .three {
+  border-color: var(--sub-grey);
+  background: var(--main-purple);
+}
+
+form input[type="radio"] {
+  display: none;
+}
+
+/* submit button */
+form .button {
+  height: 45px;
+  margin: 45px 0;
+}
+
+form .button input {
+  height: 100%;
+  width: 100%;
+  outline: none;
+  color: #fff;
+  border: none;
+  font-size: 18px;
+  font-weight: 500;
+  border-radius: 5px;
+  background: linear-gradient(135deg, var(--main-blue), var(--main-purple));
+  transition: all 0.3s ease;
+}
+
+form .button input:hover {
+  background: linear-gradient(-135deg, var(--main-blue), var(--main-purple));
+}
+
+@media only screen and (max-width: 584px) {
+  .container {
+    max-width: 100%;
+  }
+
+  form .user__details .input__box {
+    margin-bottom: 15px;
+    width: 100%;
+  }
+
+  form .gender__details .category {
+    width: 100%;
+  }
+
+  .container form .user__details {
+    max-height: 300px;
+    overflow-y: scroll;
+  }
+
+  .user__details::-webkit-scrollbar {
+    width: 0;
+  }
+}
+
+  </style>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+<body>
+
+  
+    {% for message in messages %}
+
+    <div class="alert alert-{{messages.tags}}" role="alert">
+      <strong>{{message}}</strong>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close"
+      ></button>
+    </div>
+
+    {% endfor %}
+
+    <div class="container">
+      <div class="title">Registration</div>
+  
+      <form method="post" action="#" id="registration-form">
+        {% csrf_token %}
+        <div class="user__details">
+          <div class="input__box">
+            <span class="details">Phone:</span>
+            <input type="tel" id="phone" name="phone" placeholder="start with (9,8,6) and must have 10 digits" required>
+            <span id="phone-error" class="error"></span>
+          </div>
+  
+          <div class="input__box">
+            <span class="details">PIN Code:</span>
+            <input type="text" id="pin" name="pin" placeholder="6-digit PIN code" required>
+            <span id="pin-error" class="error"></span>
+          </div>
+  
+          <div class="input__box">
+            <span class="details">Address:</span>
+            <textarea class="form-control" id="address" rows="3" required></textarea>
+            <span id="address-error" class="error"></span>
+          </div>
+  
+          <div class="input__box">
+            <label class="details" for="city">City:</label>
+            <select class="form-control" id="city" name="city" required>
+              <option value="" disabled selected>Select City</option>
+              <option value="city1">City 1</option>
+              <option value="city2">City 2</option>
+              <option value="city3">City 3</option>
+              <!-- Add more cities as options -->
+            </select>
+            <span id="city-error" class="error"></span>
+          </div>
+  
+          <div class="input__box">
+            <span class="details" for="country">Country:</span>
+            <select class="form-control" id="country" name="country" required>
+              <option value="" disabled selected>Select Country</option>
+              <option value="country1">Country 1</option>
+              <option value="country2">Country 2</option>
+              <option value="country3">Country 3</option>
+              <!-- Add more countries as options -->
+            </select>
+            <span id="country-error" class="error"></span>
+          </div>
+  
+          <div class="input__box">
+            <label class="details" for="state">State:</label>
+            <select class="form-control" id="state" name="state" required>
+              <option value="" disabled selected>Select State</option>
+              <option value="state1">State 1</option>
+              <option value="state2">State 2</option>
+              <option value="state3">State 3</option>
+              <!-- Add more states as options -->
+            </select>
+            <span id="state-error" class="error"></span>
+          </div>
+  
+        </div>
+        <div class="gender__details">
+          <input type="radio" name="gender" id="dot-1">
+          <input type="radio" name="gender" id="dot-2">
+          <input type="radio" name="gender" id="dot-3">
+          <span class="gender__title">Gender</span>
+          <div class="category">
+            <label for="dot-1">
+              <span class="dot one"></span>
+              <span>Male</span>
+            </label>
+            <label for="dot-2">
+              <span class="dot two"></span>
+              <span>Female</span>
+            </label>
+            <label for="dot-3">
+              <span class="dot three"></span>
+              <span>Prefer not to say</span>
+            </label>
+          </div>
+        </div>
+        <div id="gender-error" class="error-message"></div>
+        <div class="button">
+          <input type="submit" value="add details">
+        </div>
+      </form>
+    </div>
+
+
+
+    
+    <script>
+      const form = document.getElementById("registration-form");
+      const phoneInput = document.getElementById("phone");
+      const pinInput = document.getElementById("pin");
+      const addressInput = document.getElementById("address");
+      const genderInputs = document.querySelectorAll("input[name='gender']");
+      const genderError = document.getElementById("gender-error");
+    
+      phoneInput.addEventListener("input", () => {
+        const phoneValue = phoneInput.value;
+        const phoneError = document.getElementById("phone-error");
+    
+        if (!/^[986]\d{9}$/.test(phoneValue) || /\s/.test(phoneValue)) {
+          phoneError.textContent =
+            "Phone must start with 9, 8, or 6, have 10 digits, and contain no spaces";
+          phoneInput.setCustomValidity("Invalid");
+        } else {
+          phoneError.textContent = "";
+          phoneInput.setCustomValidity("");
+        }
+        checkFormValidity();
+      });
+    
+      pinInput.addEventListener("input", () => {
+        const pinValue = pinInput.value;
+        const pinError = document.getElementById("pin-error");
+    
+        if (!/^\d{6}$/.test(pinValue) || /\s/.test(pinValue)) {
+          pinError.textContent = "PIN code must be 6 digits and contain no spaces";
+          pinInput.setCustomValidity("Invalid");
+        } else {
+          pinError.textContent = "";
+          pinInput.setCustomValidity("");
+        }
+        checkFormValidity();
+      });
+    
+      addressInput.addEventListener("input", () => {
+        const addressValue = addressInput.value;
+        const addressError = document.getElementById("address-error");
+    
+        if (addressValue.trim() === "") {
+          addressError.textContent = "Address cannot be empty";
+          addressInput.setCustomValidity("Invalid");
+        } else {
+          addressError.textContent = "";
+          addressInput.setCustomValidity("");
+        }
+        checkFormValidity();
+      });
+    
+      // Gender validation
+      form.addEventListener("change", () => {
+        const selectedGender = Array.from(genderInputs).find(
+          (input) => input.checked
+        );
+    
+        if (!selectedGender) {
+          genderError.textContent = "Gender is mandatory";
+          genderInputs.forEach((input) => input.setCustomValidity("Invalid"));
+        } else {
+          genderError.textContent = "";
+          genderInputs.forEach((input) => input.setCustomValidity(""));
+        }
+        checkFormValidity();
+      });
+    
+      function checkFormValidity() {
+        if (form.checkValidity()) {
+          form.submit();
+        }
+      }
+    </script>
+
+    <!--
+   <script>
+      var config={
+        cUrl:'https://api.countrystatecity.in/v1/countries',
+        ckey:''
+      }
+</script >
+      -->
+    
+    
+    
+
+</body>
+</html>

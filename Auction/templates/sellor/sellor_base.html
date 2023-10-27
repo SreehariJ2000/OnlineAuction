@@ -1,1 +1,146 @@
-<h1> sellor page
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <style>
+        /* Custom styles for the fixed navbar */
+        .navbar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          background-color: #007bff; /* Blue background color */
+          transition: background-color 0.3s ease; /* Add animation to the background color */
+          z-index: 1000; /* Ensure it's above other elements */
+        }
+    
+        .navbar.navbar-scrolled {
+          background-color: #0056b3; /* Color when scrolled */
+        }
+        
+        .nav-item.dropdown .dropdown-menu a.dropdown-item:hover {
+          color: #333 !important; /* Change this color to the desired darker text color */
+      }
+
+      /* Custom CSS for changing link and dropdown color on hover */
+    .nav-item.dropdown .nav-link:hover,
+    .nav-item.dropdown .nav-link:focus {
+        color: #333 !important; /* Change this color to the desired darker text color */
+    }
+
+    .nav-item.dropdown .dropdown-menu a.dropdown-item:hover {
+        background-color: #007bff !important; /* Change this to the desired darker background color on hover */
+        color: #fff !important; /* Change this to the desired text color on hover */
+    }
+        
+         
+    
+        
+      </style>
+
+    {% block style %} {% endblock style %}
+
+    <title> {% block title %} {% endblock title %}</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary"> <!-- Change classes here -->
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#"><i class="fas fa-home"></i>Antique Treasure</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class "nav-link" href="#">Link</a> <!-- Fix the class attribute here -->
+              </li>
+              <li class="nav-item dropdown mx-3">
+                <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Add to Auction
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <li><a class="dropdown-item " href="#">normal auction</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#">verified auction</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#">Something else here</a></li>
+                </ul>
+              </li>
+
+              <li class="nav-item dropdown mx-3">
+                <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Dropdown
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <li><a class="dropdown-item" href="#">Action</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#">Another action</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#">Something else here</a></li>
+                </ul>
+              </li>
+
+
+              <li class="nav-item dropdown mx-3">
+                <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Reports
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <li><a class="dropdown-item" href="#">Action</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#">Another action</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#">Something else here</a></li>
+                </ul>
+              </li>
+
+              <form class="d-flex mx-5">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+              </form>
+
+
+              <li class="nav-item dropdown mx-5">
+                <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Hello {{user.first_name}}
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <li><a class="dropdown-item" href="#">profile</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#">Another act</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{% url "handlelogout" %}">logout</a></li>
+                </ul>
+              </li>
+            </ul>
+           
+
+            
+          </div>
+        </div>
+      </nav>
+    
+      <script>
+        // JavaScript to add animation when scrolling
+        window.addEventListener("scroll", function () {
+          const navbar = document.querySelector(".navbar");
+          if (window.scrollY > 0) {
+            navbar.classList.add("navbar-scrolled");
+          } else {
+            navbar.classList.remove("navbar-scrolled");
+          }
+        });
+      </script>
+    
+  </body>
+</html>

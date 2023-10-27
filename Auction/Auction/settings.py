@@ -148,5 +148,5 @@ EMAIL_HOST_PASSWORD='rmxg esmu otny zohs'
 
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_COOKIE_NAME = "sessionid"
-SESSION_COOKIE_AGE = 600
+SESSION_COOKIE_AGE = 1000
 LOGIN_URL='/handlelogin/'

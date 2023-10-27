@@ -27,7 +27,6 @@ import threading
 #reset passwor generater
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from .models import *
-from django.http import JsonResponse
 from django.views import View
 from .models import Profile 
 
@@ -137,7 +136,7 @@ def handlelogin(request):
                         return redirect('/customerhome')
                    elif myuser.role=='SELLER':
                         
-                        return HttpResponse("seller login")
+                        return redirect('seller_dashboard')
                    elif myuser.role=='ADMIN':
                           
                           return redirect('/adminreg')
@@ -313,4 +312,78 @@ def update_profile(request):
 
   
 
+
+
+  #sellor reisteration
+
+
+
+def sellor_signup(request):
+    if request.method=="POST":
+            fname=request.POST['first_name']
+            lname=request.POST['last_name']
+            email=request.POST['email']
+            username=email
+            password=request.POST['password']
+            confirm_password=request.POST['confirm_password']
+
+            if not is_valid_email(email):
+                  messages.warning(request,"enter a valid email")
+                  return render(request,'auth/sellor_signup.html')
+
+            
+            if password!=confirm_password:
+                    messages.warning(request,"password is not matching")
+                    return render(request,'auth/sellor_signup.html')
+            try:
+                      if User.objects.get(username=email):
+                             messages.warning(request,"Email is already taken")
+                             return render(request,'auth/sellor_signup.html')
+            except Exception as identifiers:
+                      pass
+
+            user=User.objects.create_user(first_name=fname,last_name=lname,email=email,password=password,username=username,role='SELLER')
+            user.is_active=False  #make the user inactive
+            user.save()
+
+            try:
+                  seller_profile=user.sellerprofile
+            except SellerProfile.DoesNotExist:
+                  seller_profile=SellerProfile(user=user)
+                  seller_profile.save()
+            
+            current_site=get_current_site(request)  
+            email_subject="Activate your account"
+            message=render_to_string('auth/activate.html',{
+                   'user':user,
+                   'domain':current_site.domain,
+                   'uid':urlsafe_base64_encode(force_bytes(user.pk)),
+                   'token':generate_token.make_token(user)
+
+
+            })
+
+            email_message=EmailMessage(email_subject,message,settings.EMAIL_HOST_USER,[email],)
+            EmailThread(email_message).start()
+            messages.info(request,"Active your account by clicking the link send to your email")
+
+
+
+           
+            return redirect('/auth_app/handlelogin/')
+            
+             
+            
+    return render(request,'auth/sellor_signup.html')
  
+
+
+
+
+ 
+def seller_dashboard(request):
+    if request.user.sellerprofile.is_approved:
+        return render(request, 'sellor/sellor_dashboard.html')
+    else:
+        messages.success(request, 'Your profile is pending admin approval.')
+        return render(request, 'auth/sellor_update_profile.html')
