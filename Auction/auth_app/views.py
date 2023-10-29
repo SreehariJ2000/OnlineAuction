@@ -28,7 +28,7 @@ import threading
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from .models import *
 from django.views import View
-from .models import Profile 
+from .models import *
 
 
 
@@ -387,3 +387,57 @@ def seller_dashboard(request):
     else:
         messages.success(request, 'Your profile is pending admin approval.')
         return render(request, 'auth/sellor_update_profile.html')
+    
+
+
+
+
+def create_seller_profile(request):
+    if request.method == 'POST':
+        user = request.user
+        
+        phone = request.POST.get('phone')
+        profile_picture = request.FILES.get('profile_picture')
+        pin = request.POST.get('pin')
+        address = request.POST.get('address')
+        state = request.POST.get('state')
+        country = request.POST.get('country')
+        city = request.POST.get('city')
+       
+        gender = request.POST.get('gender')
+        
+        
+        
+
+        # Check if a SellerProfile already exists for the user
+        seller_profile, created = SellerProfile.objects.get_or_create(user=user, defaults={
+            'phone': phone,
+            'profile_picture': profile_picture,
+            'pin': pin,
+            'address': address,
+            'state': state,
+            'country': country,
+            'city': city,
+            'gender': gender,
+        })
+
+        if not created:
+            # Update the fields if the profile already exists
+            seller_profile.phone = phone
+            seller_profile.profile_picture = profile_picture
+            seller_profile.pin = pin
+            seller_profile.address = address
+           
+            seller_profile.gender = gender
+            if country:
+                seller_profile.country = country
+            if state:
+                seller_profile.state = state
+            if city:
+                seller_profile.city = city
+            seller_profile.save()
+
+        messages.success(request, 'Your seller profile has been submitted for approval.')
+        return redirect('create_seller_profile')
+
+    return render(request, 'auth/sellor_update_profile.html')

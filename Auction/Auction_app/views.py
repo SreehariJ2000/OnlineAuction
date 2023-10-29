@@ -2,6 +2,8 @@ from django.shortcuts import render,redirect
 
 from django.views.decorators.cache import never_cache
 from django.contrib.auth import get_user_model
+from django.http import HttpResponse
+
 
 # Create your views here.
 @never_cache
@@ -30,3 +32,15 @@ def adminreg(request):
     context = {'user_profiles': user_profiles}
     
     return render(request, 'admin.html', context)
+
+
+def add_product(request):
+    if request.method=="POST":
+        name=request.POST['product_name']
+        
+        print(name,'***************************')
+        return HttpResponse("hjkjhkh")
+
+
+    return render(request,'sellor/add_product.html')
+

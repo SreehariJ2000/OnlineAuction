@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -203,46 +205,58 @@ form .button input:hover {
     <div class="container">
       <div class="title">Registration</div>
   
-      <form method="post" action="#" id="registration-form">
+      <form method="post" action="{% url "create_seller_profile" %}"  id="registration-form" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="user__details">
+
+          <div class="edit-left">
+            <div class="profile-picture" {% if user.profile_picture %} >
+                <img src="{{ user.profile_picture.url }}" alt="Profile Picture" style=" width: 150px; height: 150px; border-radius: 50%;">
+            {% else %}
+            <!-- Display a placeholder or default image if no profile picture exists -->
+            <img src="{% static '/assets/img/profile.png' %}" alt="Default Profile Picture">
+            {% endif %} 
+            <input type="file" name="profile_picture" accept="image/*">
+          <!-- <button class="edit-profile-button" type="submit">Change Profile Picture</button>  -->  
+            </div>
+            
+              </div>
+
           <div class="input__box">
             <span class="details">Phone:</span>
-            <input type="tel" id="phone" name="phone" placeholder="start with (9,8,6) and must have 10 digits" required>
+            <input type="tel" id="phone" name="phone" placeholder="start with (9,8,6) and must have 10 digits" value="{{user.sellerprofile.phone}}" required>
             <span id="phone-error" class="error"></span>
           </div>
   
           <div class="input__box">
             <span class="details">PIN Code:</span>
-            <input type="text" id="pin" name="pin" placeholder="6-digit PIN code" required>
+            <input type="text" id="pin" name="pin" placeholder="6-digit PIN code" value="{{ user.sellerprofile.pin }}" required>
             <span id="pin-error" class="error"></span>
           </div>
   
           <div class="input__box">
             <span class="details">Address:</span>
-            <textarea class="form-control" id="address" rows="3" required></textarea>
+            <textarea class="form-control" id="address" name="address" rows="3" required>{{ user.sellerprofile.address }}</textarea>
             <span id="address-error" class="error"></span>
           </div>
   
           <div class="input__box">
             <label class="details" for="city">City:</label>
-            <select class="form-control" id="city" name="city" required>
-              <option value="" disabled selected>Select City</option>
-              <option value="city1">City 1</option>
-              <option value="city2">City 2</option>
-              <option value="city3">City 3</option>
-              <!-- Add more cities as options -->
+            <select class="form-select city" id="city" name="city" required>
+              <option  selected>pta</option>
+              
             </select>
             <span id="city-error" class="error"></span>
           </div>
   
           <div class="input__box">
             <span class="details" for="country">Country:</span>
-            <select class="form-control" id="country" name="country" required>
-              <option value="" disabled selected>Select Country</option>
-              <option value="country1">Country 1</option>
-              <option value="country2">Country 2</option>
-              <option value="country3">Country 3</option>
+            <select class="form-select country" id="country" name="country" onchange="loadStates()"  required>
+              <option  selected>Select Country</option>
+              {% if user.sellerprofile.country %}
+          <option selected>{{ user.sellerprofile.country }}</option>
+        {% endif %}
+              
               <!-- Add more countries as options -->
             </select>
             <span id="country-error" class="error"></span>
@@ -250,11 +264,12 @@ form .button input:hover {
   
           <div class="input__box">
             <label class="details" for="state">State:</label>
-            <select class="form-control" id="state" name="state" required>
-              <option value="" disabled selected>Select State</option>
-              <option value="state1">State 1</option>
-              <option value="state2">State 2</option>
-              <option value="state3">State 3</option>
+            <select class="form-select state" id="state" name="state" onchange="loadCities()" required>
+              <option  selected>Select State</option>
+              {% if user.sellerprofile.state %}
+          <option selected>{{ user.sellerprofile.state }}</option>
+        {% endif %}
+              
               <!-- Add more states as options -->
             </select>
             <span id="state-error" class="error"></span>
@@ -262,9 +277,9 @@ form .button input:hover {
   
         </div>
         <div class="gender__details">
-          <input type="radio" name="gender" id="dot-1">
-          <input type="radio" name="gender" id="dot-2">
-          <input type="radio" name="gender" id="dot-3">
+          <input type="radio" name="gender" value="male"  id="dot-1" {% if user.sellerprofile.gender == 'Male' %}checked{% endif %}>
+          <input type="radio" name="gender" value="female" id="dot-2" {% if user.sellerprofile.gender == 'Female' %}checked{% endif %}>
+          <input type="radio" name="gender" value="other" id="dot-3" {% if user.sellerprofile.gender == 'Prefer not to say' %}checked{% endif %}>
           <span class="gender__title">Gender</span>
           <div class="category">
             <label for="dot-1">
@@ -292,87 +307,180 @@ form .button input:hover {
 
     
     <script>
-      const form = document.getElementById("registration-form");
-      const phoneInput = document.getElementById("phone");
-      const pinInput = document.getElementById("pin");
-      const addressInput = document.getElementById("address");
-      const genderInputs = document.querySelectorAll("input[name='gender']");
-      const genderError = document.getElementById("gender-error");
-    
-      phoneInput.addEventListener("input", () => {
-        const phoneValue = phoneInput.value;
-        const phoneError = document.getElementById("phone-error");
-    
-        if (!/^[986]\d{9}$/.test(phoneValue) || /\s/.test(phoneValue)) {
-          phoneError.textContent =
-            "Phone must start with 9, 8, or 6, have 10 digits, and contain no spaces";
-          phoneInput.setCustomValidity("Invalid");
-        } else {
-          phoneError.textContent = "";
-          phoneInput.setCustomValidity("");
-        }
-        checkFormValidity();
-      });
-    
-      pinInput.addEventListener("input", () => {
-        const pinValue = pinInput.value;
-        const pinError = document.getElementById("pin-error");
-    
-        if (!/^\d{6}$/.test(pinValue) || /\s/.test(pinValue)) {
-          pinError.textContent = "PIN code must be 6 digits and contain no spaces";
-          pinInput.setCustomValidity("Invalid");
-        } else {
-          pinError.textContent = "";
-          pinInput.setCustomValidity("");
-        }
-        checkFormValidity();
-      });
-    
-      addressInput.addEventListener("input", () => {
-        const addressValue = addressInput.value;
-        const addressError = document.getElementById("address-error");
-    
-        if (addressValue.trim() === "") {
-          addressError.textContent = "Address cannot be empty";
-          addressInput.setCustomValidity("Invalid");
-        } else {
-          addressError.textContent = "";
-          addressInput.setCustomValidity("");
-        }
-        checkFormValidity();
-      });
-    
-      // Gender validation
-      form.addEventListener("change", () => {
-        const selectedGender = Array.from(genderInputs).find(
-          (input) => input.checked
-        );
-    
-        if (!selectedGender) {
-          genderError.textContent = "Gender is mandatory";
-          genderInputs.forEach((input) => input.setCustomValidity("Invalid"));
-        } else {
-          genderError.textContent = "";
-          genderInputs.forEach((input) => input.setCustomValidity(""));
-        }
-        checkFormValidity();
-      });
-    
-      function checkFormValidity() {
-        if (form.checkValidity()) {
-          form.submit();
-        }
-      }
-    </script>
 
-    <!--
-   <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        var form = document.getElementById("registration-form");
+        var phoneInput = document.getElementById("phone");
+        var pinInput = document.getElementById("pin");
+        var addressInput = document.getElementById("address");
+        var genderInputs = document.querySelectorAll("input[name='gender']");
+        var genderError = document.getElementById("gender-error");
+        var citySelect = document.getElementById("city");
+        var countrySelect = document.getElementById("country");
+        var stateSelect = document.getElementById("state");
+      
+        function displayErrorMessage(fieldElement, errorElement, message) {
+          fieldElement.classList.add("is-invalid");
+          errorElement.textContent = message;
+        }
+      
+        function clearErrorMessage(fieldElement, errorElement) {
+          fieldElement.classList.remove("is-invalid");
+          errorElement.textContent = "";
+        }
+      
+        phoneInput.addEventListener("input", function () {
+          clearErrorMessage(phoneInput, document.getElementById("phone-error"));
+          var phoneValue = phoneInput.value;
+          if (!/^[986]\d{9}$/.test(phoneValue) || /\s/.test(phoneValue)) {
+            displayErrorMessage(phoneInput, document.getElementById("phone-error"), "Phone must start with 9, 8, or 6, have 10 digits, and contain no spaces");
+          }
+        });
+      
+        pinInput.addEventListener("input", function () {
+          clearErrorMessage(pinInput, document.getElementById("pin-error"));
+          var pinValue = pinInput.value;
+          if (!/^\d{6}$/.test(pinValue) || /\s/.test(pinValue)) {
+            displayErrorMessage(pinInput, document.getElementById("pin-error"), "PIN code must be 6 digits and contain no spaces");
+          }
+        });
+      
+        addressInput.addEventListener("input", function () {
+          clearErrorMessage(addressInput, document.getElementById("address-error"));
+          var addressValue = addressInput.value.trim();
+          if (addressValue === "") {
+            displayErrorMessage(addressInput, document.getElementById("address-error"), "Address cannot be empty");
+          }
+        });
+      
+        function checkGender() {
+          clearErrorMessage(genderError, genderError);
+          var selectedGender = Array.from(genderInputs).find(function (input) {
+            return input.checked;
+          });
+          if (!selectedGender) {
+            displayErrorMessage(genderError, genderError, "Gender is mandatory");
+          }
+        }
+      
+        genderInputs.forEach(function (input) {
+          input.addEventListener("change", checkGender);
+        });
+      
+        form.addEventListener("submit", function (e) {
+          checkGender();
+          if (form.checkValidity() && citySelect.value !== "Select City" && countrySelect.value !== "Select Country" && stateSelect.value !== "Select State") {
+            // The form is valid
+          } else {
+            e.preventDefault();
+            var selectedCountry = countrySelect.value;
+    var selectedState = stateSelect.value;
+    var selectedCity = citySelect.value;
+
+    console.log("Selected Country: " + selectedCountry);
+    console.log("Selected State: " + selectedState);
+    console.log("Selected City: " + selectedCity);
+            console.log("Form submission prevented due to errors."); // Prevent form submission
+          }
+        });
+      });
+     
+  
+   
       var config={
         cUrl:'https://api.countrystatecity.in/v1/countries',
-        ckey:''
+        ckey:'OGN1bjExVTVHMzRPN3FYZHA4VTZHNFpPbU1SYXlpY3lLeVZkaDl5SA=='
       }
+
+    var countrySelect = document.querySelector('.country'),
+    stateSelect = document.querySelector('.state'),
+    citySelect = document.querySelector('.city')
+
+    function loadCountries() {
+
+      let apiEndPoint = config.cUrl
+  
+      fetch(apiEndPoint, {headers: {"X-CSCAPI-KEY": config.ckey}})
+      .then(Response => Response.json())
+      .then(data => {
+          // console.log(data);
+  
+          data.forEach(country => {
+              const option = document.createElement('option')
+              option.value = country.iso2
+              option.textContent = country.name 
+              countrySelect.appendChild(option)
+          })
+      })
+      .catch(error => console.error('Error loading countries:', error))
+
+      
+    stateSelect.disabled = true
+    citySelect.disabled = true
+    stateSelect.style.pointerEvents = 'none'
+    citySelect.style.pointerEvents = 'none'
+      
+  }
+  
+  function loadStates(){
+    stateSelect.disabled = false
+    citySelect.disabled = true
+    stateSelect.style.pointerEvents = 'auto'
+    citySelect.style.pointerEvents = 'none'
+
+    const selectedCountryCode = countrySelect.value
+    // console.log(selectedCountryCode);
+    stateSelect.innerHTML = '<option value="">Select State</option>' // for clearing the existing states
+    citySelect.innerHTML = '<option value="">Select City</option>' // Clear existing city options
+
+    fetch(`${config.cUrl}/${selectedCountryCode}/states`, {headers: {"X-CSCAPI-KEY": config.ckey}})
+    .then(response => response.json())
+    .then(data => {
+        // console.log(data);
+
+        data.forEach(state => {
+            const option = document.createElement('option')
+            option.value = state.iso2
+            option.textContent = state.name 
+            stateSelect.appendChild(option)
+        })
+    })
+    .catch(error => console.error('Error loading countries:', error))
+  }
+
+
+  function loadCities() {
+    
+    citySelect.disabled = false
+    citySelect.style.pointerEvents = 'auto'
+
+    const selectedCountryCode = countrySelect.value
+    const selectedStateCode = stateSelect.value
+    // console.log(selectedCountryCode, selectedStateCode);
+
+    citySelect.innerHTML = '<option value="">Select City</option>' // Clear existing city options
+
+    fetch(`${config.cUrl}/${selectedCountryCode}/states/${selectedStateCode}/cities`, {headers: {"X-CSCAPI-KEY": config.ckey}})
+    .then(response => response.json())
+    .then(data => {
+        // console.log(data);
+
+        data.forEach(city => {
+            const option = document.createElement('option')
+            option.value = city.iso2
+            option.textContent = city.name 
+            citySelect.appendChild(option)
+        })
+    })
+}
+
+
+   window.onload=loadCountries      
+   
+
+
 </script >
-      -->
+      
     
     
     

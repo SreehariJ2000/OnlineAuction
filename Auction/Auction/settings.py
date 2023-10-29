@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Auction_app',
-    'auth_app'
+    'auth_app',
+    'ckeditor',
 ]
 
 MIDDLEWARE = [
@@ -124,6 +125,12 @@ STATICFILES_DIRS=[
     os.path.join(BASE_DIR,'static')
 ]
 
+
+
+#for images
+MEDIA_URL="/media/"
+MEDIA_ROOT=os.path.join(BASE_DIR,"media")
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -148,5 +155,5 @@ EMAIL_HOST_PASSWORD='rmxg esmu otny zohs'
 
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_COOKIE_NAME = "sessionid"
-SESSION_COOKIE_AGE = 1000
+SESSION_COOKIE_AGE = 10000
 LOGIN_URL='/handlelogin/'
