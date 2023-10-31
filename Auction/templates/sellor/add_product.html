@@ -187,19 +187,19 @@ h2{
                     </div> <br> 
                     <fieldset> 
                         <h2>Step 1: Product Information</h2>
-                            <div class="form-group">
-                                <label for="category">Category:</label>
-                                <select class="form-control" id="category" name="category">
-                                    <option  selected>Select Country</option>
-                                    <!-- Populate options for categories here -->
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="sub_category">Sub-Category:</label>
-                                <select class="form-control" id="sub_category" name="sub_category">
-                                    <!-- Populate options for sub-categories based on selected category here -->
-                                </select>
-                            </div>
+                            
+                        <div class="form-group">
+                            <label for="category">Category:</label>
+                            <select class="form-control" id="category" name="category" onchange="getSubCategories()">
+                                <option value="" selected>Select Category</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="sub_category">Sub-Category:</label>
+                            <select class="form-control" id="sub_category" name="sub_category">
+                                <option value="" selected>Select Sub-Category</option>
+                            </select>
+                        </div>
                             <div class="form-group">
                                 <label for="product_name">Product Name:</label>
                                 <input type="text" class="form-control" id="product_name" name="product_name">
@@ -333,6 +333,47 @@ h2{
                 return false; 
             }) 
         }); 
+
+
+
+        // Fetch categories and populate the "Category" dropdown
+    fetch('/api/get_categories/')  // Replace with your API endpoint
+    .then(response => response.json())
+    .then(data => {
+        const categorySelect = document.getElementById('category');
+        data.categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.id;
+            option.textContent = category.cat_name;
+            categorySelect.appendChild(option);
+        });
+    });
+
+// Fetch sub-categories and populate the "Sub-Category" dropdown
+function getSubCategories(){
+    var cat = parseInt(document.getElementById('category').value);
+    const subCatSel = document.getElementById('sub_category');
+    subCatSel.innerHTML = "<option value='' selected disabled>Select Your Sub Categories</option>"
+    var cData;
+    fetch('/api/get_subcategories/')  // Replace with your API endpoint
+    .then(response => response.json())
+    .then(data => {
+        for (i in data.categories_and_subcategories){
+            if (parseInt(i) === (cat-1)){
+                cData = data.categories_and_subcategories[i].subcategories;
+            }
+        }
+        for (i in cData){
+            console.log(cData[i]);
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = cData[i].sub_name;
+            subCatSel.appendChild(option);
+        }
+        }).catch(error => {
+        console.error(error);
+    });
+}
         
 
 </script>

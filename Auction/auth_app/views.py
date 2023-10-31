@@ -139,7 +139,7 @@ def handlelogin(request):
                         return redirect('seller_dashboard')
                    elif myuser.role=='ADMIN':
                           
-                          return redirect('/adminreg')
+                          return redirect('/adminhome')
                           
             else:
                    messages.error(request,"enter valid credentials")
@@ -405,9 +405,6 @@ def create_seller_profile(request):
         city = request.POST.get('city')
        
         gender = request.POST.get('gender')
-        
-        
-        
 
         # Check if a SellerProfile already exists for the user
         seller_profile, created = SellerProfile.objects.get_or_create(user=user, defaults={

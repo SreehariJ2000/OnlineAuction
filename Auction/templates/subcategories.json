@@ -1,0 +1,2 @@
+# subcategories.json
+{{ subcategories | safe }}
