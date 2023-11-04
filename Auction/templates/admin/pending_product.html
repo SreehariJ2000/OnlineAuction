@@ -1,0 +1,73 @@
+{% extends "admin/adminnav.html" %}
+
+{% block style %}
+    <!-- Add any additional styles specific to this page -->
+    <style>
+        /* Custom styles for the table */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+            animation: fadeIn 1s; /* Apply animation to the entire table */
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #000;
+        }
+
+        th {
+            background-color: #000;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        /* Example animation - You can modify or add more animation as needed */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+{% endblock style %}
+
+{% block body %}
+    <div class="container">
+        <h1 class="text-center">Pending Products Approval</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Seller Name</th>
+                    <th>Product Name</th>
+                    <th>Auction Start Date</th>
+                    <th>Auction End Date</th>
+                    <th>View More Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in unapproved_products %}
+                <tr>
+                    <td>{{ product.seller.user.first_name }}</td>
+                    <td>{{ product.product_name }}</td>
+                    <td>{{ product.auction_start_datetime }}</td>
+                    <td>{{ product.auction_end_datetime }}</td>
+                    <td><a href="{% url 'more_product_details' product.id %}" class="btn btn-primary">View Details</a></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">No unapproved products</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock body %}

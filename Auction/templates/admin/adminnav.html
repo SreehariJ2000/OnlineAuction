@@ -4,9 +4,12 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+	
+     
 	<!-- Boxicons -->
 	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+
+
 	<!-- My CSS -->
 	<link rel="stylesheet" href="style.css">
 
@@ -48,10 +51,11 @@
 					<span class="text">pending approval</span>
 				</a>
 			</li>
+			
 			<li>
-				<a href="#">
+				<a href="{% url "product_approval" %}">
 					<i class='bx bxs-doughnut-chart' ></i>
-					<span class="text">analytics</span>
+					<span class="text">Product Approval</span>
 				</a>
 			</li>
 			<li>

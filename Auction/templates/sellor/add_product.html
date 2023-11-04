@@ -173,6 +173,23 @@ h2{
         <div class="col-11 col-sm-9 col-md-7  
             col-lg-6 col-xl-5 text-center p-0 mt-3 mb-2"> 
             <div class="px-0 pt-4 pb-0 mt-3 mb-3"> 
+
+
+
+                {% for message in messages %}
+
+                <div class="alert alert-{{messages.tags}}" role="alert">
+                  <strong>{{message}}</strong>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"
+                  ></button>
+                </div>
+      
+                {% endfor %}
+
                 <form method="post" action="{% url "add_product" %}" id="form" enctype="multipart/form-data">
                     {% csrf_token %}
                     <ul id="progressbar"> 
@@ -193,35 +210,50 @@ h2{
                             <select class="form-control" id="category" name="category" onchange="getSubCategories()">
                                 <option value="" selected>Select Category</option>
                             </select>
+                            <span id="category-error" class="error-span"></span>
                         </div>
                         <div class="form-group">
                             <label for="sub_category">Sub-Category:</label>
                             <select class="form-control" id="sub_category" name="sub_category">
                                 <option value="" selected>Select Sub-Category</option>
                             </select>
+                            <span id="sub_category-error" class="error-span"></span>
                         </div>
                             <div class="form-group">
                                 <label for="product_name">Product Name:</label>
                                 <input type="text" class="form-control" id="product_name" name="product_name">
                             </div>
+                            <span id="product_name-error" class="error-span"></span>
+
                             <div class="form-group">
                                 <label for="tags">Tags:</label>
                                 <input type="text" class="form-control" id="tags" name="tags">
                             </div>
+                            <span id="tags-error" class="error-span"></span>
+
                             <div class="form-group">
                                 <label for="about_product">About Product:</label>
                                 <textarea class="form-control" id="about_product" name="about_product"></textarea>
                             </div>
+                            <span id="about_product-error" class="error-span"></span>
 
                             <div class="form-group">
                                 <label for="auction_start_datetime">Auction Start Date and Time:</label>
                                 <input type="datetime-local" class="form-control" id="auction_start_datetime" name="auction_start_datetime">
+                                <span id="datetime-error" style="color: red;"></span>
                             </div>
                             <div class="form-group">
                                 <label for="auction_end_datetime">Auction End Date and Time:</label>
                                 <input type="datetime-local" class="form-control" id="auction_end_datetime" name="auction_end_datetime">
+                                <span id="datetime-error" style="color: red;"></span>
                             </div>
-                            
+
+                            <div class="form-group">
+                                <label for="current_price">Current Price:</label>
+                                <input type="number" class="form-control" id="current_price" name="current_price" step="0.01">
+                            </div>
+                            <span id="current_price-error" class="error-span"></span>
+
                         <input type="button" name="next-step" 
                             class="next-step" value="Next Step" /> 
                     </fieldset> 
@@ -231,6 +263,7 @@ h2{
                                 <label for="image1">Image 1:</label>
                                 <input type="file" class="form-control" id="image1" name="image1">
                             </div>
+                            <span id="image1-error" class="error-span"></span>
                             <div class="form-group">
                                 <label for="image2">Image 2:</label>
                                 <input type="file" class="form-control" id="image2" name="image2">
@@ -247,6 +280,7 @@ h2{
                                 <label for="authentication_certificate">Authentication Certificate:</label>
                                 <input type="file" class="form-control" id="authentication_certificate" name="authentication_certificate">
                             </div>
+                            <span id="authentication_certificate-error" class="error-span"></span>
                             
                         <input type="submit" name="next-step" 
                             class="next-step" value="submit" /> 
@@ -374,7 +408,78 @@ function getSubCategories(){
         console.error(error);
     });
 }
-        
+   //validation
+
+document.addEventListener("DOMContentLoaded", function() {
+    const startDatetimeInput = document.getElementById("auction_start_datetime");
+    const endDatetimeInput = document.getElementById("auction_end_datetime");
+    const productNameInput = document.getElementById("product_name");
+    const tagsInput = document.getElementById("tags");
+    const aboutProductInput = document.getElementById("about_product");
+    const currentPriceInput = document.getElementById("current_price");
+    const image1Input = document.getElementById("image1");
+    const authenticationCertificateInput = document.getElementById("authentication_certificate");
+
+    const errorSpans = document.querySelectorAll(".error-span");
+
+    startDatetimeInput.addEventListener("change", validateDatetime);
+    endDatetimeInput.addEventListener("change", validateDatetime);
+    productNameInput.addEventListener("input", validateRequired);
+    tagsInput.addEventListener("input", validateRequired);
+    aboutProductInput.addEventListener("input", validateRequired);
+    currentPriceInput.addEventListener("input", validateCurrentPrice);
+    image1Input.addEventListener("input", validateRequired);
+    authenticationCertificateInput.addEventListener("input", validateRequired);
+
+    function validateDatetime() {
+        const startDatetime = new Date(startDatetimeInput.value);
+        const endDatetime = new Date(endDatetimeInput.value);
+        const now = new Date();
+
+        if (startDatetime < now) {
+            errorSpan.textContent = "Start date and time must be in the future.";
+        } else if (endDatetime <= now) {
+            errorSpan.textContent = "End date and time must be in the future.";
+        } else if (startDatetime >= endDatetime) {
+            errorSpan.textContent = "Start date and time must be before end date and time.";
+        } else {
+            errorSpan.textContent = "";
+        }
+    }
+
+    function validateRequired(event) {
+        const input = event.target;
+        const errorSpan = input.nextElementSibling;
+        if (input.value.trim() === "") {
+            errorSpan.textContent = "This field is required.";
+        } else {
+            errorSpan.textContent = "";
+        }
+    }
+
+    function validateCurrentPrice(event) {
+        const input = event.target;
+        const errorSpan = input.nextElementSibling;
+        if (input.value.trim() === "") {
+            errorSpan.textContent = "This field is required.";
+        } else if (!/^\d+(\.\d{1,2})?$/.test(input.value)) {
+            errorSpan.textContent = "Enter a valid number with up to 2 decimal places.";
+        } else {
+            errorSpan.textContent = "";
+        }
+    }
+
+    document.getElementById("form").addEventListener("submit", function(event) {
+        const errors = [...errorSpans].map(span => span.textContent).filter(Boolean);
+        if (errors.length > 0) {
+            event.preventDefault(); // Prevent form submission if there are errors
+            alert("Please fix the errors in the form before submitting.");
+        }
+    });
+});
+    
+
+
 
 </script>
 

@@ -1,0 +1,183 @@
+{% extends "admin/adminnav.html" %}
+
+
+
+
+{% block style %}
+
+<style>
+    /* Add this CSS in your stylesheet */
+.animated-button {
+    background-color: #000; /* Black background color */
+    color: #fff; /* White text color */
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.animated-button:hover {
+    background-color: #333; /* Darker black on hover */
+    transform: scale(1.1);
+}
+
+
+    /* Custom styles for the product page */
+    .product-info {
+        padding: 20px;
+        border: 1px solid #ddd;
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Custom styles for the bid input field */
+    .input-group {
+        margin-top: 10px;
+    }
+    
+   
+    <!-- Add any additional styles specific to this page -->
+    <style>
+        /* Custom styles for the table */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+            animation: fadeIn 1s; /* Apply animation to the entire table */
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #000;
+        }
+
+        th {
+            background-color: #000;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        /* Example animation - You can modify or add more animation as needed */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+ 
+    
+
+</style>
+
+
+{% endblock style %}
+
+{% block body %}
+     
+<div class="container">
+
+    <div class="row2">
+        <div class="col-lg-12">
+
+            <div class="col-lg-6">
+                <!-- Div 2: Product Information -->
+                <div class="product-info">
+                    <h2>Product Name : {{ product.product_name }}</h2>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Seller Name</th>
+                                <th>about product</th>
+                                <th>Auction Start Date</th>
+                                <th>Auction End Date</th>
+                                <th>authentication_certificate</th>
+                            </tr>
+                        </thead>
+                        
+                        <tbody>
+                            
+                            <tr>
+                                <td>{{ product.seller.user.first_name }}</td>
+                                <td>{{ product.about_product }}</td>
+                                <td>{{ product.auction_start_datetime }}</td>
+                                <td>{{ product.auction_end_datetime }}</td>
+                                <td> <a href="{{ product.authentication_certificate.url }}" target="_blank">View Certificate</a> </td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="2">
+                                    <form method="post" action="{% url 'approved_product' product.id %}">
+                                        {% csrf_token %}
+                                        <button class="animated-button" type="submit">Approve</button>
+                                    </form>
+                                </td>
+                            
+                                <td colspan="3">
+                                    <form method="post" action="">
+                                        {% csrf_token %}
+                                        <button class="animated-button" type="submit">reject</button>
+                                    </form>
+                                </td>
+                            </tr> 
+
+        
+                           
+                        </tbody>
+                    
+                    </table>
+
+                    
+                    
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <div class="row3">
+        <div class="col-lg-12">
+
+            <div class="col-lg-6">
+                <!-- Div 2: Product Information -->
+                <div class="image-info" style="margin: 50px;" >
+                    
+                    <img src="{{ product.image1.url }}" alt="Image 1" style="width: 300px; height: 300px;"> &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp
+                    <img src="{{ product.image1.url }}" alt="Image 2" style="width: 300px; height: 300px;"> &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <!-- Div 2: Product Information -->
+                <div class="image-info" style="margin: 50px;" >
+                    <img src="{{ product.image1.url }}" alt="Image 3" style="width: 300px; height: 300px;"> &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp
+                    <img src="{{ product.image1.url }}" alt="Image 4" style="width: 300px; height: 300px;"> &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp
+                </div>
+            </div>
+
+        </div>
+</div>
+
+
+
+
+
+
+{% endblock body %}
+

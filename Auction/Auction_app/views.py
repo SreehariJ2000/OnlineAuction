@@ -8,6 +8,10 @@ from .models import *
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.utils import timezone
+from django.contrib import messages
+from decimal import Decimal
+from django.utils import timezone
 # Create your views here.
 @never_cache
 def index(request):
@@ -95,6 +99,24 @@ def approve_seller(request, seller_id):
 
 
 
+
+def approved_product(request,product_id):
+    product = AddProduct.objects.get(pk=product_id)
+    product.admin_approval = True
+    product.save()
+    subject = 'Your Product Approval'
+    message = f'Your product "{product.product_name}" has been approved.'
+    from_email = 'hsree524@gmail.com'  
+    recipient_list = [product.seller.user.email]  
+
+    send_mail(subject, message, from_email, recipient_list, fail_silently=False)
+
+    return redirect('/product_approval/') 
+
+
+
+
+
 def add_product(request):
     if request.method == 'POST':
         # Retrieve data from the form
@@ -102,6 +124,7 @@ def add_product(request):
         sub_category = request.POST.get('sub_category')
         print(category,sub_category,"11111111111111111111111111111111111")
         product_name = request.POST.get('product_name')
+        current_price=request.POST.get('current_price')
         tags = request.POST.get('tags')
         about_product = request.POST.get('about_product')
         auction_start_datetime = request.POST.get('auction_start_datetime')
@@ -111,6 +134,7 @@ def add_product(request):
         image3 = request.FILES.get('image3')
         image4 = request.FILES.get('image4')
         authentication_certificate = request.FILES['authentication_certificate']
+        
 
         # Create a new AddProduct instance and save it
         add_product = AddProduct(
@@ -119,6 +143,7 @@ def add_product(request):
             product_name=product_name,
             tags=tags,
             about_product=about_product,
+            current_price=current_price,
             auction_start_datetime=auction_start_datetime,
             auction_end_datetime=auction_end_datetime,
             image1=image1,
@@ -129,7 +154,8 @@ def add_product(request):
             seller=request.user.sellerprofile  # You may need to customize this part
         )
         add_product.save()
-        return HttpResponse("success")  
+        messages.success(request,"waiting for approval")
+        return redirect('/add_product')  
     return render(request,'sellor/add_product.html')
 
 
@@ -140,7 +166,7 @@ def get_categories(request):
     categories = Category.objects.values('id', 'cat_name')
     return JsonResponse({'categories': list(categories)})
 
-from django.db import connection
+
 def get_subcategories(request):
     category_id = 1  # You may pass category_id as a query parameter
     cat = Category.objects.all()
@@ -153,4 +179,81 @@ def get_subcategories(request):
 
 
 
+def product_approval(request):
+    unapproved_products = AddProduct.objects.filter(admin_approval=False)
+    
+    return render(request,'admin/pending_product.html',{'unapproved_products': unapproved_products})
 
+
+
+def more_product_details(request,product_id):
+    product = AddProduct.objects.get(id=product_id)
+    return render(request,'admin/more_product_detail.html', {'product': product})
+
+
+       
+
+def live_auctions(request):
+    
+    current_time = timezone.now()
+    live_auctions = AddProduct.objects.filter(
+        auction_start_datetime__lte=current_time,
+        auction_end_datetime__gt=current_time,admin_approval=True
+        
+    )
+    # if live_auctions.exists():
+    #     for auction in live_auctions:
+    #         print("Auction Start Date:", auction.auction_start_datetime)
+    # else:
+    #          print("No live auctions.")
+
+    # all_products = AddProduct.objects.all()
+    # for product in all_products:
+    #       print("Product Name:", product.product_name)
+    #       print("Auction Start Date:", product.auction_start_datetime)
+
+    return render(request, 'customer_home.html', {'live_auctions': live_auctions})
+
+def upcoming_auctions(request):
+    
+    current_time = timezone.now()
+    upcoming_auctions = AddProduct.objects.filter(
+    auction_start_datetime__gt=current_time,admin_approval=True
+  )
+
+    return render(request, 'upcoming_auctions.html', {'upcoming_auctions': upcoming_auctions})
+
+
+
+def bidding(request,product_id):
+    user = request.user
+    product = AddProduct.objects.get(id=product_id)
+    list=Bid.objects.filter(product_id=product_id)
+    context = {
+        'product': product,
+        'user_data': user,
+        'list':list
+    
+    }
+    
+    return render(request,'customer/bidding.html',context)
+
+
+def place_bid(request,product_id):
+    if request.method == 'POST':
+        bid_amount = Decimal(request.POST.get('bid_amount'))
+        product = AddProduct.objects.get(pk=product_id)
+
+        if bid_amount > product.current_highest_bid:
+            product.current_highest_bid = bid_amount
+            product.save()
+
+            Bid.objects.create(product=product, bidder=request.user, bid_amount=bid_amount)
+        
+            return redirect('bidding', product_id=product_id)
+        else:
+            messages.success(request," use higher amount than now ")
+            return redirect('bidding', product_id=product_id)
+            
+
+     

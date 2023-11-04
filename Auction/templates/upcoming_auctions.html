@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+
+<h1>Upcoming Auctions</h1>
+
+<div class="container">
+    <div class="row">
+
+ {% for product in upcoming_auctions %}
+
+<div class="col-4">
+
+<div class="card" style="width: 18rem;">
+  <img src="{{ product.image1.url }}" height="100px" width="100px"class="card-img-top" alt="...">
+  <div class="card-body">
+    <h5 class="card-title">{{ product.product_name }}</h5>
+    <p class="card-text">{{ product.auction_start_datetime }}</p>
+    <a href="" class="btn btn-primary">view more details</a>
+       
+  </div>
+</div>
+</div>
+     {% endfor %}
+        </div>
+    </div>
+
+
+{% endblock body %}

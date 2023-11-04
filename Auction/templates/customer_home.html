@@ -1,21 +1,39 @@
-{% extends "base.html" %}
-
-
-
-{% block style %}
+{% extends "base.html" %} {% block style %}
 <style>
-    /* Define the CSS styles for the div */
-    .custom-div {
-        height: 700px; /* Set the height to 700 pixels */
-        background-color: #f0f0f0; /* Optional: Add a background color for visibility */
-    }
+  /* Define the CSS styles for the div */
+  .custom-div {
+    height: 700px; /* Set the height to 700 pixels */
+    background-color: #f0f0f0; /* Optional: Add a background color for visibility */
+  }
 </style>
-{% endblock style %}
+{% endblock style %} {% block body %}
 
-{% block body %}
-<div class="custom-div">
-    <h1>   CUSTOMER   page </h1>
-    
+<div class="container">
+  <div class="row">
+    {% for product in live_auctions %}
+
+    <div class="col-4">
+      <div class="card" style="width: 18rem">
+        <img
+          src="{{ product.image1.url }}"
+          height="100px"
+          width="100px"
+          class="card-img-top"
+          alt="..."
+        />
+        <div class="card-body">
+          <h5 class="card-title">{{ product.product_name }}</h5>
+          <p class="card-text">Start time {{ product.auction_start_datetime }}  <th> 
+            End time {{product.auction_end_datetime}}
+          </p>
+          <a href="{% url 'bidding' product.id %}" class="btn btn-primary">view details</a>
+          <a href="" class="btn btn-danger">bid</a>
+        </div>
+      </div>
+    </div>
+   
+    {% endfor %}
+  </div>
 </div>
 
 {% endblock body %}

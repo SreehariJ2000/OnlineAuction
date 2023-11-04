@@ -438,3 +438,4 @@ def create_seller_profile(request):
         return redirect('create_seller_profile')
 
     return render(request, 'auth/sellor_update_profile.html')
+
