@@ -57,7 +57,7 @@
 
       <nav id="navbar" class="navbar">
         <ul>
-          <li><a class="nav-link scrollto active" href="/">Home</a></li>
+          <li><a class="nav-link scrollto {% if request.path == '/' %}active{% endif %}" href="/">Home</a></li>
           <li><a class="nav-link scrollto" href="/about">About</a></li>
           
           <li><a class="nav-link scrollto" href="#"></a></li>
@@ -68,8 +68,8 @@
 
           {%if request.user.is_authenticated  and request.user.is_active %}
 
-          <li><a class="nav-link scrollto" href="{% url "upcoming_auctions" %}">up comming</a></li>
-          <li><a class="nav-link scrollto" href="{% url "live_auctions" %}">live</a></li>
+          <li><a class="nav-link scrollto {% if request.path == '/upcoming-auctions/' %}active{% endif %}" href="{% url "upcoming_auctions" %}">up comming</a></li>
+          <li><a class="nav-link scrollto {% if request.path == '/live-auctions/' %}active{% endif %}" href="{% url "live_auctions" %}">live</a></li>
           <li class="dropdown"><a href="#"><span>Hello {{user.first_name}}</span> <i class="bi bi-chevron-right"></i></a>
             <ul>
               <li><a href="{% url "update-profile" %}">My profile</a></li>

@@ -346,11 +346,8 @@ def sellor_signup(request):
             user.is_active=False  #make the user inactive
             user.save()
 
-            try:
-                  seller_profile=user.sellerprofile
-            except SellerProfile.DoesNotExist:
-                  seller_profile=SellerProfile(user=user)
-                  seller_profile.save()
+            seller_profile=SellerProfile(user=user)
+            seller_profile.save()
             
             current_site=get_current_site(request)  
             email_subject="Activate your account"
@@ -392,6 +389,7 @@ def seller_dashboard(request):
 
 
 
+
 def create_seller_profile(request):
     if request.method == 'POST':
         user = request.user
@@ -403,8 +401,9 @@ def create_seller_profile(request):
         state = request.POST.get('state')
         country = request.POST.get('country')
         city = request.POST.get('city')
+        print("dddddddddddddd",city)
        
-        gender = request.POST.get('gender')
+        gender = "GST"
 
         # Check if a SellerProfile already exists for the user
         seller_profile, created = SellerProfile.objects.get_or_create(user=user, defaults={
@@ -421,7 +420,8 @@ def create_seller_profile(request):
         if not created:
             # Update the fields if the profile already exists
             seller_profile.phone = phone
-            seller_profile.profile_picture = profile_picture
+            if profile_picture:
+               seller_profile.profile_picture = profile_picture
             seller_profile.pin = pin
             seller_profile.address = address
            

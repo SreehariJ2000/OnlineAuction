@@ -8,16 +8,16 @@
 </style>
 {% endblock style %} {% block body %}
 
-<div class="container">
+<div class="container mt-5">
   <div class="row">
     {% for product in live_auctions %}
 
-    <div class="col-4">
+    <div class="col-4 mt-5">
       <div class="card" style="width: 18rem">
         <img
           src="{{ product.image1.url }}"
-          height="100px"
-          width="100px"
+          height="200px"
+          width="300px"
           class="card-img-top"
           alt="..."
         />

@@ -28,16 +28,16 @@ class Profile(models.Model):
 
 class SellerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    phone = models.CharField(max_length=15, unique=True)  
+    phone = models.CharField(max_length=15)  
     profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
     address = models.CharField(max_length=255)
     pin = models.CharField(max_length=10)
     state = models.CharField(max_length=100)
     country = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
-    gender = models.CharField(max_length=10)
+    gender = models.CharField(max_length=10,blank=True)
     is_approved = models.BooleanField(default=False)
-    
+
     def __str__(self):
         return self.user.first_name
     

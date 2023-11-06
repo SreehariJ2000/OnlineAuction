@@ -5,19 +5,19 @@
 
 <h1>Upcoming Auctions</h1>
 
-<div class="container">
+<div class="container mt-3">
     <div class="row">
 
  {% for product in upcoming_auctions %}
 
-<div class="col-4">
+<div class="col-4 mt-3">
 
 <div class="card" style="width: 18rem;">
-  <img src="{{ product.image1.url }}" height="100px" width="100px"class="card-img-top" alt="...">
+  <img src="{{ product.image1.url }}" height="200px" width="200px"class="card-img-top" alt="...">
   <div class="card-body">
     <h5 class="card-title">{{ product.product_name }}</h5>
     <p class="card-text">{{ product.auction_start_datetime }}</p>
-    <a href="" class="btn btn-primary">view more details</a>
+    <a href="{% url "upcomming_detailed" product.id %}" class="btn btn-primary">view more details</a>
        
   </div>
 </div>

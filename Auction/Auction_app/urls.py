@@ -28,6 +28,7 @@ urlpatterns = [
     path('live-auctions/', views.live_auctions, name='live_auctions'),
     path('upcoming-auctions/', views.upcoming_auctions, name='upcoming_auctions'),
     path('product/<int:product_id>/',views.bidding,name='bidding'),
+    path('upcomming_detailed/<int:product_id>/',views.upcomming_detailed,name='upcomming_detailed'),
     path('place_bid/<int:product_id>/', views.place_bid, name='place_bid'),
     
     

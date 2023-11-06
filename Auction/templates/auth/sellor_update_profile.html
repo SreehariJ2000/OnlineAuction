@@ -216,7 +216,7 @@ form .button input:hover {
             <!-- Display a placeholder or default image if no profile picture exists -->
             <img src="{% static '/assets/img/profile.png' %}" alt="Default Profile Picture">
             {% endif %} 
-            <input type="file" name="profile_picture" accept="image/*">
+            <input type="file" name="profile_picture" accept="image/*" value="{{user.profile.profile_picture}}">
           <!-- <button class="edit-profile-button" type="submit">Change Profile Picture</button>  -->  
             </div>
             
@@ -243,7 +243,10 @@ form .button input:hover {
           <div class="input__box">
             <label class="details" for="city">City:</label>
             <select class="form-select city" id="city" name="city" required>
-              <option  selected>pta</option>
+              <option  selected>Select city</option>
+              {% if user.sellerprofile.country %}
+              <option selected>{{ user.sellerprofile.city }}</option>
+            {% endif %}
               
             </select>
             <span id="city-error" class="error"></span>
@@ -276,27 +279,8 @@ form .button input:hover {
           </div>
   
         </div>
-        <div class="gender__details">
-          <input type="radio" name="gender" value="male"  id="dot-1" {% if user.sellerprofile.gender == 'Male' %}checked{% endif %}>
-          <input type="radio" name="gender" value="female" id="dot-2" {% if user.sellerprofile.gender == 'Female' %}checked{% endif %}>
-          <input type="radio" name="gender" value="other" id="dot-3" {% if user.sellerprofile.gender == 'Prefer not to say' %}checked{% endif %}>
-          <span class="gender__title">Gender</span>
-          <div class="category">
-            <label for="dot-1">
-              <span class="dot one"></span>
-              <span>Male</span>
-            </label>
-            <label for="dot-2">
-              <span class="dot two"></span>
-              <span>Female</span>
-            </label>
-            <label for="dot-3">
-              <span class="dot three"></span>
-              <span>Prefer not to say</span>
-            </label>
-          </div>
-        </div>
-        <div id="gender-error" class="error-message"></div>
+       
+        
         <div class="button">
           <input type="submit" value="add details">
         </div>
@@ -405,12 +389,13 @@ form .button input:hover {
       .then(data => {
           // console.log(data);
   
-          data.forEach(country => {
-              const option = document.createElement('option')
-              option.value = country.iso2
-              option.textContent = country.name 
-              countrySelect.appendChild(option)
-          })
+          
+              const indiaOption = document.createElement('option')
+              indiaOption.value = 'IN';
+              indiaOption.textContent = 'India';
+              indiaOption.selected = true; 
+              countrySelect.appendChild(indiaOption);
+          
       })
       .catch(error => console.error('Error loading countries:', error))
 

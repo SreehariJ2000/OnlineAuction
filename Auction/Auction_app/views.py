@@ -233,10 +233,23 @@ def bidding(request,product_id):
         'product': product,
         'user_data': user,
         'list':list
-    
     }
-    
     return render(request,'customer/bidding.html',context)
+
+
+def upcomming_detailed(request,product_id):
+    user=request.user
+    product=AddProduct.objects.get(id=product_id)
+    context={
+        'user_data':user,
+        'product':product
+    }
+    return render(request,'customer/upcomming_detailed.html',context)
+
+
+
+
+
 
 
 def place_bid(request,product_id):
