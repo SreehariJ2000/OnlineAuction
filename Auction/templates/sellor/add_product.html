@@ -208,8 +208,11 @@ h2{
                             
                         <div class="form-group">
                             <label for="category">Category:</label>
-                            <select class="form-control" id="category" name="category" onchange="getSubCategories()" required>
+                            <select class="form-control" id="category" name="category" onchange="populateSubCategories()" required>
                                 <option value="" selected>Select Category</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.cat_name }}</option>
+                              {% endfor %}
                             </select>
                             <span id="category-error" class="error-span"></span>
                         </div>
@@ -217,6 +220,9 @@ h2{
                             <label for="sub_category">Sub-Category:</label>
                             <select class="form-control" id="sub_category" name="sub_category" required>
                                 <option value="" selected>Select Sub-Category</option>
+                                {% for subcategory in subcategories %}
+                                   <option value="{{ subcategory.id }}">{{ subcategory.sub_name }}</option>
+                                {% endfor %}
                             </select>
                             <span id="sub_category-error" class="error-span"></span>
                         </div>
@@ -371,44 +377,30 @@ h2{
 
 
 
-        // Fetch categories and populate the "Category" dropdown
-    fetch('/api/get_categories/')  // Replace with your API endpoint
-    .then(response => response.json())
-    .then(data => {
-        const categorySelect = document.getElementById('category');
-        data.categories.forEach(category => {
-            const option = document.createElement('option');
-            option.value = category.id;
-            option.textContent = category.cat_name;
-            categorySelect.appendChild(option);
-        });
-    });
+// getSubCategories
 
-// Fetch sub-categories and populate the "Sub-Category" dropdown
-function getSubCategories(){
-    var cat = parseInt(document.getElementById('category').value);
-    const subCatSel = document.getElementById('sub_category');
-    subCatSel.innerHTML = "<option value='' selected disabled>Select Your Sub Categories</option>"
-    var cData;
-    fetch('/api/get_subcategories/')  // Replace with your API endpoint
-    .then(response => response.json())
-    .then(data => {
-        for (i in data.categories_and_subcategories){
-            if (parseInt(i) === (cat-1)){
-                cData = data.categories_and_subcategories[i].subcategories;
+    function populateSubCategories() {
+        const categoryDropdown = document.getElementById("category");
+        const subCategoryDropdown = document.getElementById("sub_category");
+
+        // Clear existing sub-category options
+        subCategoryDropdown.innerHTML = '<option value="" selected>Select Sub-Category</option>';
+
+        // Get the selected category value
+        const selectedCategoryId = categoryDropdown.value;
+
+        // Loop through the subcategories and add options that match the selected category
+        {% for subcategory in subcategories %}
+            if ("{{ subcategory.category.id }}" === selectedCategoryId) {
+                const option = document.createElement("option");
+                option.value = "{{ subcategory.id }}";
+                option.text = "{{ subcategory.sub_name }}";
+                subCategoryDropdown.appendChild(option);
             }
-        }
-        for (i in cData){
-            console.log(cData[i]);
-            const option = document.createElement('option');
-            option.value = i;
-            option.textContent = cData[i].sub_name;
-            subCatSel.appendChild(option);
-        }
-        }).catch(error => {
-        console.error(error);
-    });
-}
+        {% endfor %}
+    }
+
+
 
 
 
@@ -427,20 +419,30 @@ function getSubCategories(){
         }
     }
 
-    // Function to validate if the start date and time is at least 5 minutes from now
-    function validateStartDate(startDateTime, errorElement) {
-        const inputDate = new Date(startDateTime.value);
-        const currentDate = new Date();
-        currentDate.setMinutes(currentDate.getMinutes() + 5); // 5 minutes from now
-        if (inputDate <= currentDate) {
-            errorElement.textContent = 'Start date and time must be at least 5 minutes from now.';
-            errorElement.style.color = 'red'; // Set error message color to red
-            return false;
-        } else {
-            errorElement.textContent = '';
-            return true;
-        }
+  
+    // Function to validate if the start date and time is at least 5 minutes from now and not greater than six months from now
+function validateStartDate(startDateTime, errorElement) {
+    const inputDate = new Date(startDateTime.value);
+    const currentDate = new Date();
+    const sixMonthsLater = new Date();
+    sixMonthsLater.setMonth(currentDate.getMonth() + 6); // 6 months from now
+    currentDate.setMinutes(currentDate.getMinutes() + 5); // 5 minutes from now
+
+    if (inputDate <= currentDate) {
+        errorElement.textContent = 'Start date and time must be at least 5 minutes from now.';
+        errorElement.style.color = 'red'; // Set error message color to red
+        return false;
+    } else if (inputDate > sixMonthsLater) {
+        errorElement.textContent = 'Start date must not be greater than six months from now.';
+        errorElement.style.color = 'red'; // Set error message color to red
+        return false;
+    } else {
+        errorElement.textContent = '';
+        return true;
     }
+}
+
+
 
     // Function to validate if the end date and time is greater than the start time
     function validateEndDate(startDateTime, endDateTime, errorElement) {

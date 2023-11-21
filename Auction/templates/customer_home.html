@@ -1,39 +1,68 @@
-{% extends "base.html" %} {% block style %}
-<style>
-  /* Define the CSS styles for the div */
-  .custom-div {
-    height: 700px; /* Set the height to 700 pixels */
-    background-color: #f0f0f0; /* Optional: Add a background color for visibility */
-  }
-</style>
-{% endblock style %} {% block body %}
+{% extends "base.html" %} 
 
-<div class="container mt-5">
-  <div class="row">
-    {% for product in live_auctions %}
+{% load static %}
+{% block body %}
 
-    <div class="col-4 mt-5">
-      <div class="card" style="width: 18rem">
-        <img
-          src="{{ product.image1.url }}"
-          height="200px"
-          width="300px"
-          class="card-img-top"
-          alt="..."
-        />
-        <div class="card-body">
-          <h5 class="card-title">{{ product.product_name }}</h5>
-          <p class="card-text">Start time {{ product.auction_start_datetime }}  <th> 
-            End time {{product.auction_end_datetime}}
-          </p>
-          <a href="{% url 'bidding' product.id %}" class="btn btn-primary">view details</a>
-          <a href="" class="btn btn-danger">bid</a>
+
+    <!-- ======= Hero Section ======= -->
+    <section id="hero" class="d-flex align-items-center">
+      <div class="container">
+        <div class="row">
+          <div
+            class="col-lg-6 d-flex flex-column justify-content-center pt-4 pt-lg-0 order-2 order-lg-1"
+            data-aos="fade-up"
+            data-aos-delay="200"
+          >
+            <h1>Auction Thrills Await You</h1>
+            <h2>
+              Explore and win unique treasures at our online auctions
+            </h2>
+            <div class="d-flex justify-content-center justify-content-lg-start">
+              <!--<a href="#about" class="btn-get-started scrollto">Get Started</a>
+              <a
+                href="https://www.youtube.com/watch?v=jDDaplaOz7Q"
+                class="glightbox btn-watch-video"
+                ><i class="bi bi-play-circle"></i><span>Watch Video</span></a
+              > -->
+            </div>
+          </div>
+          <div
+            class="col-lg-6 order-1 order-lg-2 hero-img"
+            data-aos="zoom-in"
+            data-aos-delay="200"
+          >
+            <img
+              src="{% static 'assets/img/view.jpg' %}"
+              class="img-fluid animated"
+              alt=""
+            />
+          </div>
         </div>
       </div>
-    </div>
-   
-    {% endfor %}
-  </div>
-</div>
+    </section>
+    <!-- End Hero -->
 
+
+    <div class="container mt-3">
+      <div class="row">
+  
+   {% for product in upcoming_auctions %}
+  
+  <div class="col-4 mt-3">
+  
+  <div class="card" style="width: 18rem;">
+    <img src="{{ product.image1.url }}" height="200px" width="200px"class="card-img-top" alt="...">
+    <div class="card-body">
+      <h5 class="card-title">{{ product.product_name }}</h5>
+      <p class="card-text">{{ product.auction_start_datetime }}</p>
+      <a href="{% url "upcomming_detailed" product.id %}" class="btn btn-primary">view more details</a>
+         
+    </div>
+  </div>
+  </div>
+       {% endfor %}
+          </div>
+      </div>
+
+      
 {% endblock body %}

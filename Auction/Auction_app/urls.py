@@ -9,9 +9,9 @@ urlpatterns = [
     path('customerhome/',views.CustomerHome,name='customerhome'),
     path('adminhome/',views.adminhome,name='admin'),
     path('add_product',views.add_product,name='add_product'),
-    path('api/get_categories/', views.get_categories, name='get_categories'),
+    # path('api/get_categories/', views.get_categories, name='get_categories'),
     
-    path('api/get_subcategories/', views.get_subcategories, name='get_subcategories'),
+    # path('api/get_subcategories/', views.get_subcategories, name='get_subcategories'),
    
     # admin side
     path('user_account/',views.user_account,name='user_account'),
@@ -22,6 +22,7 @@ urlpatterns = [
     path('product_approval/',views.product_approval,name='product_approval'),
     path('more_product_details/<int:product_id>/',views.more_product_details,name='more_product_details'),
     path('approved_product/<int:product_id>/',views.approved_product,name='approved_product'),
+    path('reject_product/<int:product_id>/', views.reject_product, name='reject_product'),
     
 
 #customer side
@@ -30,8 +31,11 @@ urlpatterns = [
     path('product/<int:product_id>/',views.bidding,name='bidding'),
     path('upcomming_detailed/<int:product_id>/',views.upcomming_detailed,name='upcomming_detailed'),
     path('place_bid/<int:product_id>/', views.place_bid, name='place_bid'),
+    path('addtocart/',views.addtocart,name='addtocart'),
+    path('winner_cart/', views.winner_cart, name='winner_cart'),
     
     
-    
+    #seller side
+    path('product_status/', views.seller_products, name='seller_products'),
 
 ]

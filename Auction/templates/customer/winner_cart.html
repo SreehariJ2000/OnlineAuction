@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block style %}
+<style>
+  /* Add your custom styles here */
+  .cart-container {
+    max-width: 800px;
+    margin: 20px auto;
+  }
+
+  .cart-item {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+  }
+
+  .cart-item img {
+    max-width: 100px;
+    margin-right: 10px;
+  }
+
+  .cart-item-details {
+    flex-grow: 1;
+  }
+
+  .purchase-button {
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+</style>
+{% endblock style %}
+
+{% block body %}
+  <div class="cart-container">
+    <h2>Your Winnings</h2>
+    <div id="cart-items-container">
+      {% if cart_items %}
+        {% for cart_item in cart_items %}
+          <div class="cart-item" data-product-id="{{ cart_item.product.id }}">
+            <img src="{{ cart_item.product.image1.url }}" alt="{{ cart_item.product.product_name }}">
+            <div class="cart-item-details">
+              <h3>{{ cart_item.product.product_name }}</h3>
+              <p>Amount: {{ cart_item.product.current_highest_bid }}</p>
+              <button class="purchase-button" onclick="purchaseProduct({{ cart_item.product.id }})">Purchase</button>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>Your winning  is empty.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+    function purchaseProduct(productId) {
+      // You can implement the logic to handle the purchase here
+      alert('Product purchased!');  // Placeholder, replace with actual logic
+    }
+  </script>
+{% endblock %}

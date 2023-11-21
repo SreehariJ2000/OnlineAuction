@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block style %}
+<style>
+  /* Define the CSS styles for the div */
+  .custom-div {
+    height: 700px; /* Set the height to 700 pixels */
+    background-color: #f0f0f0; /* Optional: Add a background color for visibility */
+  }
+</style>
+{% endblock style %}
+
+{% block body %}
+
+<div class="container mt-5">
+  <div class="row">
+    {% for product in live_auctions %}
+      <div class="col-4 mt-5">
+        <div class="card" style="width: 18rem">
+          <img
+            src="{{ product.image1.url }}"
+            height="200px"
+            width="300px"
+            class="card-img-top"
+            alt="..."
+          />
+          <div class="card-body">
+            <h5 class="card-title">{{ product.product_name }}</h5>
+            <p class="card-text">
+              Start time {{ product.auction_start_datetime }} <th> End time {{ product.auction_end_datetime }}
+            </p>
+            <!-- Add this where you want to display the timer -->
+            <p>Time Left: <span id="timer_{{ product.id }}"></span></p>
+
+            <a href="{% url 'bidding' product.id %}" class="btn btn-danger">bid</a>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        var auctionEndDatetime_{{ product.id }} = new Date("{{ product.auction_end_datetime|date:'Y-m-d H:i:s' }}");
+
+        // Function to update the timer display
+        function updateTimer_{{ product.id }}() {
+          var now = new Date();
+          var timeRemaining = auctionEndDatetime_{{ product.id }} - now;
+
+          // Check if the auction has ended
+          if (timeRemaining <= 0) {
+            // Perform an asynchronous request to handle the redirection
+            $.ajax({
+              type: 'POST',
+              url: '/addtocart/',
+              data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                product_id: "{{ product.id }}"
+              },
+              success: function(response) {
+                console.log(response);
+              },
+              error: function(error) {
+                console.error(error);
+              }
+            });
+
+            // Stop further intervals
+            clearInterval(intervalId_{{ product.id }});
+            return;
+          }
+
+          // Calculate days, hours, minutes, and seconds
+          var days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+          var hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          var minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+          var seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+          // Display the timer
+          document.getElementById("timer_{{ product.id }}").innerHTML =
+            days + "d " + hours + "h " + minutes + "m " + seconds + "s";
+        }
+
+        // Initial call to updateTimer when the page loads
+        updateTimer_{{ product.id }}();
+
+        // Call updateTimer every second and stop if the auction has ended
+        var intervalId_{{ product.id }} = setInterval(function() {
+          updateTimer_{{ product.id }}();
+          var now = new Date();
+          if (now >= auctionEndDatetime_{{ product.id }}) {
+            clearInterval(intervalId_{{ product.id }});
+          }
+        }, 1000);
+      </script>
+
+    {% endfor %}
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+{% endblock body %}

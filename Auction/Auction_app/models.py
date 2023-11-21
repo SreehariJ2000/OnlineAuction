@@ -55,3 +55,14 @@ class Bid(models.Model):
     bidder = models.ForeignKey(User, on_delete=models.CASCADE)
     bid_amount = models.DecimalField(max_digits=10, decimal_places=2)
     timestamp = models.DateTimeField(default=timezone.now)
+
+
+class Cart(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE)
+    is_paid=models.BooleanField(default=False)
+
+
+class CartItems(models.Model):
+    cart = models.ForeignKey(Cart,on_delete=models.CASCADE)
+    product=models.ForeignKey(AddProduct,on_delete=models.CASCADE)
+    

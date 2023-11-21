@@ -43,16 +43,62 @@
     .carousel-control-next:hover {
         background-color: rgba(0, 0, 0, 0.7);
     }
+
+
+
+    
+        .auction {
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          transition: box-shadow 0.3s ease-in-out;
+        }
+      
+        .auction:hover {
+          box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+      
+        @keyframes slideIn {
+          from {
+            transform: translateY(100px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+      
+        .auction {
+          animation: slideIn 0.5s ease-in-out;
+        }
+
+
+.table-container {
+            max-width: 60%; /* Adjust the width as needed */
+            margin: 0 auto; /* Center the container horizontally */
+            padding: 10px; /* Add padding for spacing */
+            border: 1px solid #ccc; /* Optional: Add a border to the container */
+            border-radius: 5px; /* Optional: Add border radius for rounded corners */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Add a shadow to the container */
+          }
+          
+ .table {
+            width: 100%; /* Make the table width 100% of the container */
+          }
+          
+      
     
 
 </style>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
 
 
 {% endblock style %}
 
 {% block body %}
      
-<div class="container">
+<div class="container mt-5">
     <div class="row">
         <div class="col-lg-6">
             <!-- Div 1: Carousel -->
@@ -86,8 +132,25 @@
                 <p style="color: blue; font-weight: bold; font-size: 16px; margin-top: 50px;" > Base Price: {{ product.current_price }}</p>
                 
                 <p><h4> Additional information </h2></p>
-                <p> {{ product.about_product }} </p>
+                <p> {{ product.about_product }} </p> <br><br><br><br>
 
+
+                <!-- Add this where you want to display the timer -->
+                  <p>Time Left: <span id="timer"></span></p>
+
+                {% for message in messages %}
+
+                <div class="alert alert-{{messages.tags}}" role="alert">
+                  <strong>{{message}}</strong>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"
+                  ></button>
+                </div>
+      
+                {% endfor %}
                 <form method="post" action="{% url 'place_bid' product.id %}">
                     {% csrf_token %}
                     <div class="input-group mb-3">
@@ -96,12 +159,12 @@
                     </div>
                 </form>
 
-                {% for i in list  %}
-                        {{ i.bid_amount }}   
-                        {{ i.timestamp }}  
-                        {{ i.product.product_name }} 
-                        {{ i.bidder.first_name }}    <br>
-                {% endfor %}
+                
+                          
+                         
+                        
+                            <br>
+                
 
             </div>
         </div>
@@ -109,15 +172,89 @@
 </div>
 
 
+<div class="auction mt-5  mb-5">
+
+
+    <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              {% comment %} <th scope="col"></th> {% endcomment %}
+              <th scope="col">bidder name</th>
+              <th scope="col">time</th>
+              <th scope="col">bid amount</th>
+            </tr>
+          </thead>
+          {% for bid, bidder_name in bids %}
+          <tbody>
+              <tr>
+                  <td>{{ bidder_name }}</td>
+                  <td>{{ bid.timestamp }}</td>
+                  <td>{{ bid.bid_amount }}</td>
+              </tr>
+          </tbody>
+          {% endfor %}
+          
+        </table>
+      </div>
+      
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>
 
-    // Add custom animations to the carousel items
-$('.carousel').on('slide.bs.carousel', function (e) {
-    var $target = $(e.relatedTarget);
-    var $visible = $target.find('img');
-    $visible.css({ transform: 'scale(1.1)', opacity: 0 });
-    $visible.animate({ transform: 'scale(1)', opacity: 1 }, 1000);
-});
+  var auctionEndDatetime = new Date("{{ product.auction_end_datetime|date:'Y-m-d H:i:s' }}");
+
+  // Function to update the timer display
+  function updateTimer() {
+    var now = new Date();
+    var timeRemaining = auctionEndDatetime - now;
+  
+    // Check if the auction has ended
+    if (timeRemaining <= 0) {
+      // Perform an asynchronous request to handle the redirection
+      $.ajax({
+        type: 'POST',
+        url: '/addtocart/',
+        data: {
+          csrfmiddlewaretoken: '{{ csrf_token }}',
+          product_id: "{{ product.id }}"
+        },
+        success: function(response) {
+          console.log(response);
+        },
+        error: function(error) {
+          console.error(error);
+        }
+      });
+  
+      // Stop further intervals
+      return;
+    }
+  
+    // Calculate hours, minutes, and seconds
+    var days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+    var hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+  
+    // Display the timer
+    document.getElementById("timer").innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s";
+  }
+  
+  // Initial call to updateTimer when the page loads
+  updateTimer();
+  
+  // Call updateTimer every second and stop if the auction has ended
+  var intervalId = setInterval(function() {
+    updateTimer();
+    var now = new Date();
+    if (now >= auctionEndDatetime) {
+      clearInterval(intervalId);
+    }
+  }, 1000);
+  
 
 
 </script>

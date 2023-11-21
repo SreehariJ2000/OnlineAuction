@@ -1,0 +1,66 @@
+{% extends "sellor/sellor_base.html" %}
+
+{% block style %} 
+
+<style>
+    /* CSS animations for table rows */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    tbody tr {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    /* Custom styling for badges */
+    .badge {
+        margin-right: 5px;
+    }
+</style>
+
+{% endblock style %}
+
+
+{% block body %}
+
+<!-- Create a table with Bootstrap styling -->
+<table class="table table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th>Product Name</th>
+            <th>Current Bid</th>
+            <th>Auction Status</th>
+            <th>Approval Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in seller_products %}
+            <tr>
+                <td>{{ product.product_name }}</td>
+                <td>{{ product.current_highest_bid }}</td>
+                <td>
+                    {% if product.auction_end_datetime > time %}
+                        <span class="badge badge-success" style="background-color: #28a745; color: #fff;">Auction end</span>
+                    {% elif time < product.auction_start_datetime  %}
+                        <span class="badge badge-danger" style="background-color: #dc3545; color: #fff;"> Upcomming</span>
+
+                        {% else %}
+                        <span class="badge badge-danger" style="background-color: #ffc107; color: #fff;"> Live Auction</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if product.admin_approval %}
+                        <span class="badge badge-primary" style="background-color: #007bff; color: #fff;">Approved</span>
+                    {% else %}
+                        <span class="badge badge-warning" style="background-color: #ffc107; color: #fff;">Pending</span>
+                    {% endif %}
+                </td>
+                
+                
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock body %}

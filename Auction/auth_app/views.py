@@ -5,6 +5,8 @@ from .models import User
 from django.contrib.auth import authenticate, login,logout
 from django.utils.encoding import DjangoUnicodeDecodeError
 import re
+from django.views.decorators.cache import never_cache
+from django.contrib.auth.decorators import login_required
 
 from django.views.generic import View
 from .utils import *
@@ -15,7 +17,7 @@ from django.utils.http import urlsafe_base64_decode,urlsafe_base64_encode
 from django.utils.encoding import force_bytes,force_str
 from django.template.loader import render_to_string
 
-# Create your views here.
+
 
 #email
 from django.conf import settings
@@ -377,7 +379,9 @@ def sellor_signup(request):
 
 
 
- 
+@never_cache
+@login_required(login_url="/auth_app/handlelogin/")
+
 def seller_dashboard(request):
     if request.user.sellerprofile.is_approved:
         return render(request, 'sellor/sellor_dashboard.html')

@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect
 from  auth_app.models import User
 from django.db.models import Q
 from django.views.decorators.cache import never_cache
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.http import JsonResponse
 from .models import *
@@ -12,6 +13,10 @@ from django.utils import timezone
 from django.contrib import messages
 from decimal import Decimal
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+
+
 # Create your views here.
 @never_cache
 def index(request):
@@ -24,7 +29,11 @@ def about(request):
 
 def CustomerHome(request):
     if 'username' in request.session:
-        response = render(request,'customer_home.html')
+        current_time = timezone.now()
+        upcoming_auctions = AddProduct.objects.filter(
+        auction_start_datetime__gt=current_time,admin_approval=True)
+
+        response = render(request,'customer_home.html',{'upcoming_auctions': upcoming_auctions})
         response['Cache-Control'] = 'no-store,must-revalidate'
         return response
     else:
@@ -32,9 +41,12 @@ def CustomerHome(request):
     #return render(request,'customer_home.html')
 
 
+@never_cache
+@login_required(login_url="/auth_app/handlelogin/")
 
 def adminhome(request):   
     return render(request, 'admin/adminhome.html')
+
 
 def user_account(request):
     role_filter = request.GET.get('role')
@@ -99,7 +111,7 @@ def approve_seller(request, seller_id):
 
 
 
-
+@login_required(login_url="/auth_app/handlelogin/")
 def approved_product(request,product_id):
     product = AddProduct.objects.get(pk=product_id)
     product.admin_approval = True
@@ -117,7 +129,37 @@ def approved_product(request,product_id):
 
 
 
+
+
+def reject_product(request, product_id):
+    if request.method == 'POST':
+        product = get_object_or_404(AddProduct, id=product_id)
+        product.delete()
+        return redirect('/product_approval/')  
+
+    #return render(request, 'your_template_name.html')  
+
+
+
+
+def seller_products(request):
+    # Retrieve products for the current seller
+    seller_products = AddProduct.objects.filter(seller=request.user.sellerprofile)
+    curent_time=timezone.now()
+
+    context = {
+        'seller_products': seller_products,
+        'time': curent_time
+    }
+
+    return render(request, 'sellor/seller_product_status.html', context)
+
+
+
+@login_required(login_url="/auth_app/handlelogin/")
 def add_product(request):
+    categories = Category.objects.all()
+    subcategories = SubCategory.objects.all() 
     if request.method == 'POST':
         # Retrieve data from the form
         category = request.POST.get('category')
@@ -134,7 +176,7 @@ def add_product(request):
         image3 = request.FILES.get('image3')
         image4 = request.FILES.get('image4')
         authentication_certificate = request.FILES['authentication_certificate']
-        
+          
 
         # Create a new AddProduct instance and save it
         add_product = AddProduct(
@@ -156,43 +198,30 @@ def add_product(request):
         add_product.save()
         messages.success(request,"waiting for approval")
         return redirect('/add_product')  
-    return render(request,'sellor/add_product.html')
+    return render(request,'sellor/add_product.html',{'categories': categories, 'subcategories': subcategories})
 
 
 
 
 
-def get_categories(request):
-    categories = Category.objects.values('id', 'cat_name')
-    return JsonResponse({'categories': list(categories)})
-
-
-def get_subcategories(request):
-    category_id = 1  # You may pass category_id as a query parameter
-    cat = Category.objects.all()
-    subc = []
-    for category in cat:
-        subcategories = SubCategory.objects.filter(category_id=category.pk)
-        subcategories_list = list(subcategories.values())  # Convert queryset to a list of dictionaries
-        subc.append({'category': category.cat_name, 'subcategories': subcategories_list})
-    return JsonResponse({'categories_and_subcategories': subc})
 
 
 
+@login_required(login_url="/auth_app/handlelogin/")
 def product_approval(request):
     unapproved_products = AddProduct.objects.filter(admin_approval=False)
     
     return render(request,'admin/pending_product.html',{'unapproved_products': unapproved_products})
 
 
-
+@login_required(login_url="/auth_app/handlelogin/")
 def more_product_details(request,product_id):
     product = AddProduct.objects.get(id=product_id)
     return render(request,'admin/more_product_detail.html', {'product': product})
 
 
        
-
+@login_required(login_url="/auth_app/handlelogin/")
 def live_auctions(request):
     
     current_time = timezone.now()
@@ -212,8 +241,10 @@ def live_auctions(request):
     #       print("Product Name:", product.product_name)
     #       print("Auction Start Date:", product.auction_start_datetime)
 
-    return render(request, 'customer_home.html', {'live_auctions': live_auctions})
+    return render(request, 'live_auction.html', {'live_auctions': live_auctions})
 
+
+@login_required(login_url="/auth_app/handlelogin/")
 def upcoming_auctions(request):
     
     current_time = timezone.now()
@@ -225,18 +256,37 @@ def upcoming_auctions(request):
 
 
 
-def bidding(request,product_id):
+
+@login_required(login_url="/auth_app/handlelogin/")
+def bidding(request, product_id):
     user = request.user
     product = AddProduct.objects.get(id=product_id)
-    list=Bid.objects.filter(product_id=product_id)
+    current_time = timezone.now()
+    if current_time > product.auction_end_datetime:
+        return redirect('/live-auctions/')
+
+    # bids = Bid.objects.filter(product_id=product_id)
+    
+    bids = Bid.objects.filter(product_id=product_id).order_by('-bid_amount') 
+
+    bidder_names = []
+    for bid in bids:
+        try:
+            profile = Profile.objects.get(user=bid.bidder)
+            bidder_names.append(profile.bidder_id)
+        except Profile.DoesNotExist:
+            bidder_names.append("N/A")
+
     context = {
         'product': product,
         'user_data': user,
-        'list':list
+        'bids': zip(bids, bidder_names),  # Pair each bid with its bidder name
     }
-    return render(request,'customer/bidding.html',context)
+    return render(request, 'customer/bidding.html', context)
 
 
+
+@login_required(login_url="/auth_app/handlelogin/")
 def upcomming_detailed(request,product_id):
     user=request.user
     product=AddProduct.objects.get(id=product_id)
@@ -257,6 +307,21 @@ def place_bid(request,product_id):
         bid_amount = Decimal(request.POST.get('bid_amount'))
         product = AddProduct.objects.get(pk=product_id)
 
+        try:
+            profile = Profile.objects.get(user=request.user)
+            if not profile.bidder_id:
+                messages.error(request, "You need to set a bidder_id in your profile before placing a bid.")
+                return redirect('/update-profile')
+        except Profile.DoesNotExist:
+            messages.error(request, "You need to create a profile with a bidder_id before placing a bid.")
+            return redirect('update-profile')
+
+        if product.current_highest_bid < 1:
+            if bid_amount < product.current_price:
+                messages.error(request,"Your Bid should be greater than the Current Price.")
+                return redirect('bidding', product_id=product_id)
+            
+
         if bid_amount > product.current_highest_bid:
             product.current_highest_bid = bid_amount
             product.save()
@@ -269,4 +334,57 @@ def place_bid(request,product_id):
             return redirect('bidding', product_id=product_id)
             
 
-     
+
+
+
+import threading
+
+def send_winner_email(product, highest_bid):
+    subject = 'Congratulations! You are the Winner!'
+    context = {
+        'product': product,
+        'highest_bid': highest_bid,
+        'purchase_link': 'your_purchase_link',  # Replace with the actual purchase link
+    }
+    html_message = render_to_string('winner_email_template.html', context)
+    plain_message = strip_tags(html_message)
+    from_email = 'hsree524@gmail.com'  # Replace with your email
+    to_email = [highest_bid.bidder.email]  # Use the winner's email
+    send_mail(subject, plain_message, from_email, to_email, html_message=html_message)
+
+def addtocart(request):
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        product = get_object_or_404(AddProduct, id=product_id)
+
+        highest_bid = Bid.objects.filter(product=product).order_by('-bid_amount').first()
+
+        if highest_bid:
+            user_cart, created = Cart.objects.get_or_create(user=highest_bid.bidder, is_paid=False)    
+            cart_item, created = CartItems.objects.get_or_create(cart=user_cart, product=product)
+
+            # Send email to the winner using threading
+            email_thread = threading.Thread(target=send_winner_email, args=(product, highest_bid))
+            email_thread.start()
+
+            return JsonResponse({'success': True, 'message': 'Product added to cart successfully.'})
+        else:
+            return JsonResponse({'success': False, 'message': 'No bids found for the specified product.'})
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
+
+
+
+from django.db.models import Sum
+
+def winner_cart(request):
+    winner_cart = Cart.objects.filter(user=request.user, is_paid=False).first()
+    total_amount = CartItems.objects.filter(cart=winner_cart).aggregate(Sum('product__current_highest_bid'))['product__current_highest_bid__sum']
+    
+    if winner_cart:
+        cart_items = CartItems.objects.filter(cart=winner_cart)
+        context = {'cart_items': cart_items, 'total_amount': total_amount}
+        return render(request, 'customer/winner_cart.html', context)
+    else:
+        return render(request, 'customer/winner_cart.html')

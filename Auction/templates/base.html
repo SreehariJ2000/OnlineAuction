@@ -31,6 +31,8 @@
   <!-- Template Main CSS File -->
   <link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
   <!-- Include jQuery first -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
 
 
 
@@ -57,7 +59,7 @@
 
       <nav id="navbar" class="navbar">
         <ul>
-          <li><a class="nav-link scrollto {% if request.path == '/' %}active{% endif %}" href="/">Home</a></li>
+          <li><a class="nav-link scrollto {% if request.path == '/' %}active{% endif %}" href="{% url "customerhome" %}">Home</a></li>
           <li><a class="nav-link scrollto" href="/about">About</a></li>
           
           <li><a class="nav-link scrollto" href="#"></a></li>
@@ -73,7 +75,7 @@
           <li class="dropdown"><a href="#"><span>Hello {{user.first_name}}</span> <i class="bi bi-chevron-right"></i></a>
             <ul>
               <li><a href="{% url "update-profile" %}">My profile</a></li>
-              <li><a href="#">Settings</a></li>
+              <li><a href="{% url "winner_cart" %}">Mycollections</a></li>
               <li><a href="{% url "handlelogout" %}">log out</a></li>
 
             </ul>

@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Add your styles here */
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h2, p {
+            color: #333;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+    <title>Winner Notification</title>
+</head>
+<body>
+    <h2 style="color: #4CAF50;">Congratulations! You are the Winner!</h2>
+    
+    <p>You have won the auction for the following product:</p>
+    
+    <img src="{{ product.image1.url }}" alt="{{ product.product_name }}" width="100%">
+    
+    <p>Product Name: {{ product.product_name }}</p>
+    <p> Amount: {{ highest_bid.bid_amount }}</p>
+    
+    <p>You are required to purchase the product within 24 hours. Click the link below to proceed:</p>
+    
+    <a class="button" href="{{ purchase_link }}">Purchase Now</a>
+    
+    <p>If you do not complete the purchase within 24 hours, the product may go to the second-highest bidder.</p>
+    
+    <p>Thank you for participating!</p>
+</body>
+</html>

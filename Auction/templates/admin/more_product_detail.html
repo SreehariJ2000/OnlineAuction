@@ -128,7 +128,7 @@
                                 </td>
                             
                                 <td colspan="3">
-                                    <form method="post" action="">
+                                    <form method="post" action="{% url 'reject_product' product.id %}">
                                         {% csrf_token %}
                                         <button class="animated-button" type="submit">reject</button>
                                     </form>
