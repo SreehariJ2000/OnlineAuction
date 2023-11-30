@@ -1,0 +1,33 @@
+<!-- auctionhistory.html -->
+
+{% extends 'base.html' %}
+
+{% block body %}
+
+  <h2>Auction History</h2>
+  {% if products_participated %}
+    {% for product in products_participated %}
+      <div class="card mb-3 mx-5">
+        <div class="row no-gutters">
+          <div class="col-md-4">
+            <img src="{{ product.image1.url }}" height="250px" width="100px" class="card-img" alt="{{ product.product_name }}">
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h5 class="card-title">{{ product.product_name }}</h5>
+              <p class="card-text">Base Price: ${{ product.current_price }}</p>
+              <p class="card-text">Highest Bid: ${{ product.current_highest_bid }}</p>
+              <p class="card-text">Auction Ended At: {{ product.auction_end_datetime }}</p>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center bg-light">
+              <a href="{% url 'history_details' product.id %}" class="btn btn-success">View History</a>
+              <!-- Add more details as needed -->
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>You haven't participated in any auctions yet.</p>
+  {% endif %}
+{% endblock %}

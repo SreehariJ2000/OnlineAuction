@@ -16,6 +16,8 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 
+from django.db.models import OuterRef, Subquery
+
 
 # Create your views here.
 @never_cache
@@ -178,7 +180,7 @@ def add_product(request):
         authentication_certificate = request.FILES['authentication_certificate']
           
 
-        # Create a new AddProduct instance and save it
+        
         add_product = AddProduct(
             category=category,
             sub_category=sub_category,
@@ -193,7 +195,7 @@ def add_product(request):
             image3=image3,
             image4=image4,
             authentication_certificate=authentication_certificate,
-            seller=request.user.sellerprofile  # You may need to customize this part
+            seller=request.user.sellerprofile  
         )
         add_product.save()
         messages.success(request,"waiting for approval")
@@ -212,6 +214,70 @@ def product_approval(request):
     unapproved_products = AddProduct.objects.filter(admin_approval=False)
     
     return render(request,'admin/pending_product.html',{'unapproved_products': unapproved_products})
+
+
+
+
+def auction_history(request):
+    latest_bids_subquery = Bid.objects.filter(bidder=request.user, product=OuterRef('product')).order_by('-timestamp').values('id')[:1]
+    user_bids = Bid.objects.filter(id__in=Subquery(latest_bids_subquery))
+    products_participated = AddProduct.objects.filter(bid__in=user_bids, auction_end_datetime__lt=timezone.now())
+    context = {
+        'products_participated': products_participated,
+    }
+
+    return render(request, 'customer/auctionhistory.html', context)
+
+
+
+#sellor
+def progress_status(request,product_id):
+    user = request.user
+    product = AddProduct.objects.get(id=product_id)
+    
+    bids = Bid.objects.filter(product_id=product_id).order_by('-bid_amount') 
+
+    bidder_names = []
+    for bid in bids:
+        try:
+            profile = Profile.objects.get(user=bid.bidder)
+            bidder_names.append(profile.bidder_id)
+        except Profile.DoesNotExist:
+            bidder_names.append("N/A")
+
+    context = {
+        'product': product,
+        'user_data': user,
+        'bids': zip(bids, bidder_names),  
+    }
+    return render (request,'sellor/progressstatus.html',context)
+
+
+
+def history_details(request,product_id):
+    user = request.user
+    product = AddProduct.objects.get(id=product_id)
+    
+    bids = Bid.objects.filter(product_id=product_id).order_by('-bid_amount') 
+
+    bidder_names = []
+    for bid in bids:
+        try:
+            profile = Profile.objects.get(user=bid.bidder)
+            bidder_names.append(profile.bidder_id)
+        except Profile.DoesNotExist:
+            bidder_names.append("N/A")
+
+    context = {
+        'product': product,
+        'user_data': user,
+        'bids': zip(bids, bidder_names),  # Pair each bid with its bidder name
+    }
+    return render(request, 'customer/history_detail.html',context)
+
+
+
+
 
 
 @login_required(login_url="/auth_app/handlelogin/")
@@ -376,15 +442,96 @@ def addtocart(request):
 
 
 
+# from django.db.models import Sum
+
+# def winner_cart(request):
+#     winner_cart = Cart.objects.filter(user=request.user, is_paid=False).first()
+#     total_amount = CartItems.objects.filter(cart=winner_cart).aggregate(Sum('product__current_highest_bid'))['product__current_highest_bid__sum']
+    
+#     if winner_cart:
+#         cart_items = CartItems.objects.filter(cart=winner_cart)
+#         context = {'cart_items': cart_items, 'total_amount': total_amount}
+#         return render(request, 'customer/winner_cart.html', context)
+#     else:
+#         return render(request, 'customer/winner_cart.html')
+
+
+
+
+
 from django.db.models import Sum
+from django.shortcuts import render
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import F
 
 def winner_cart(request):
     winner_cart = Cart.objects.filter(user=request.user, is_paid=False).first()
-    total_amount = CartItems.objects.filter(cart=winner_cart).aggregate(Sum('product__current_highest_bid'))['product__current_highest_bid__sum']
-    
+
     if winner_cart:
+        expired_products = CartItems.objects.filter(
+            cart=winner_cart,
+            #product__auction_end_datetime__lt=timezone.now() - timedelta(hours=24)
+            product__auction_end_datetime__lt=timezone.now() - timedelta(minutes=3)
+        )
+
+        for item in expired_products:
+            product_name = item.product.product_name
+            user_email = request.user.email
+            send_mail(
+                f'Product Removed from Cart - {product_name}',
+                f"Dear {request.user.username},\n\n"
+                f"We regret to inform you that the product '{product_name}' has been removed from your cart "
+                f"as the auction end date + 3 minutes has passed. The product will be offered to the second winner.\n\n"
+                f"Please note that, due to not purchasing the product, your account may be deactivated.\n\n"
+                f"Thank you for your participation.",
+               'hsree524@gmail.com',   
+               [user_email],
+               fail_silently=False,
+)
+
+        expired_products.delete()
+        total_amount = CartItems.objects.filter(cart=winner_cart).aggregate(Sum('product__current_highest_bid'))['product__current_highest_bid__sum']
         cart_items = CartItems.objects.filter(cart=winner_cart)
+
         context = {'cart_items': cart_items, 'total_amount': total_amount}
         return render(request, 'customer/winner_cart.html', context)
     else:
         return render(request, 'customer/winner_cart.html')
+
+
+
+
+from django.shortcuts import render
+from django.utils import timezone
+from django.db.models import F
+from .models import Cart, CartItems, AddProduct, Bid, User
+
+def second_winner(request):
+    # Get products with auction end date + 2 minutes and is_live is false
+    products_to_process = AddProduct.objects.filter(
+        is_live=False,
+        auction_end_datetime__lte=timezone.now() + timezone.timedelta(minutes=2),
+    ).exclude().distinct()
+
+    # Initialize lists to store winner and second winner details
+    winners = []
+    second_winners = []
+
+    # Loop through each product to find winners
+    for product in products_to_process:
+        # Get the highest bid for the product
+        highest_bid = Bid.objects.filter(product=product).order_by('-bid_amount').first()
+
+        if highest_bid:
+            winner = highest_bid.bidder
+            winners.append({'product_name': product.product_name, 'winner_name': winner.username})
+
+            # Get the second highest bid for the product, excluding the first winner
+            second_highest_bid = Bid.objects.filter(product=product, bid_amount__lt=highest_bid.bid_amount).exclude(bidder=winner).order_by('-bid_amount').first()
+            if second_highest_bid:
+                second_winner = second_highest_bid.bidder
+                second_winners.append({'product_name': product.product_name, 'second_winner_name': second_winner.username})
+
+    context = {'winners': winners, 'second_winners': second_winners}
+    return render(request, 'admin/second_winner.html', context)

@@ -11,6 +11,9 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import View
 from .utils import *
 
+from django.utils import timezone
+from Auction_app.models import *
+
 #for activating user account
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_decode,urlsafe_base64_encode
@@ -384,7 +387,16 @@ def sellor_signup(request):
 
 def seller_dashboard(request):
     if request.user.sellerprofile.is_approved:
-        return render(request, 'sellor/sellor_dashboard.html')
+        current_time = timezone.now()
+        live_auctions = AddProduct.objects.filter(
+        auction_start_datetime__lte=current_time,
+        auction_end_datetime__gt=current_time,admin_approval=True
+        
+    )
+ 
+
+    
+        return render(request, 'sellor/sellor_dashboard.html',{'live_auctions': live_auctions})
     else:
         messages.success(request, 'Your profile is pending admin approval.')
         return render(request, 'auth/sellor_update_profile.html')

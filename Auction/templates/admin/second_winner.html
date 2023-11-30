@@ -1,0 +1,24 @@
+{% extends "admin/adminnav.html" %}
+
+{% block body %}
+
+
+
+    <h1>Winners and Second Winners</h1>
+
+    <h2>Winners</h2>
+    <ul>
+        {% for winner in winners %}
+            <li>Product: {{ winner.product_name }} - Winner: {{ winner.winner_name }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Second Winners</h2>
+    <ul>
+        {% for second_winner in second_winners %}
+            <li>Product: {{ second_winner.product_name }} - Second Winner: {{ second_winner.second_winner_name }}</li>
+        {% endfor %}
+    </ul>
+
+
+{% endblock body %}
