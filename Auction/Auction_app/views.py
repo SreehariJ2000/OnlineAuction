@@ -471,8 +471,8 @@ def winner_cart(request):
     if winner_cart:
         expired_products = CartItems.objects.filter(
             cart=winner_cart,
-            #product__auction_end_datetime__lt=timezone.now() - timedelta(hours=24)
-            product__auction_end_datetime__lt=timezone.now() - timedelta(minutes=3)
+            product__auction_end_datetime__lt=timezone.now() - timedelta(hours=24)
+            #product__auction_end_datetime__lt=timezone.now() - timedelta(minutes=3)
         )
 
         for item in expired_products:
@@ -525,13 +525,181 @@ def second_winner(request):
 
         if highest_bid:
             winner = highest_bid.bidder
-            winners.append({'product_name': product.product_name, 'winner_name': winner.username})
+            winners.append({ 'product_id':product.pk ,'product_name': product.product_name, 'winner_name': winner.username})
 
             # Get the second highest bid for the product, excluding the first winner
             second_highest_bid = Bid.objects.filter(product=product, bid_amount__lt=highest_bid.bid_amount).exclude(bidder=winner).order_by('-bid_amount').first()
             if second_highest_bid:
                 second_winner = second_highest_bid.bidder
-                second_winners.append({'product_name': product.product_name, 'second_winner_name': second_winner.username})
+                second_winners.append({'winner_id':second_winner.pk, 'product_name': product.product_name, 'second_winner_name': second_winner.username})
 
     context = {'winners': winners, 'second_winners': second_winners}
     return render(request, 'admin/second_winner.html', context)
+
+
+
+
+
+
+
+
+
+
+from django.shortcuts import render
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+from .models import Bid, AddProduct, User
+import threading
+
+@login_required
+def contact_second_winner(request, product_id, second_winner_id):
+    try:
+        product = AddProduct.objects.get(pk=product_id)
+        second_winner = User.objects.get(pk=second_winner_id)
+    except (AddProduct.DoesNotExist, User.DoesNotExist):
+        return HttpResponse("Invalid product or second winner ID")
+
+    # Compose the email content
+    subject = f"Congratulations! You are the Second Winner for {product.product_name}"
+    
+    # Render the HTML template with dynamic data
+    html_message = render_to_string('email_template.html', {
+        'second_winner': second_winner,
+        'product': product,
+        'purchase_link': 'your_purchase_link_here',  # Replace with the actual purchase link
+    })
+
+    # Send the email using a separate thread
+    email_thread = threading.Thread(target=send_email_in_thread, args=(subject, html_message, 'hsree524@gmail.com', [second_winner.email]))
+    email_thread.start()
+
+    return HttpResponse("contact second winner Success")
+
+def send_email_in_thread(subject, message, from_email, recipient_list):
+    # Send the HTML email
+    send_mail(subject, strip_tags(message), from_email, recipient_list, html_message=message)
+
+
+
+
+def checkout(request):
+    # Fetch the user's cart items
+    user_cart = Cart.objects.get(user=request.user)
+    cart_items = CartItems.objects.filter(cart=user_cart)
+    total_amount = sum(item.product.current_highest_bid for item in cart_items)
+
+    user = request.user
+
+    # Check if the user already has an address
+    try:
+        address = Address.objects.get(user=user)
+    except Address.DoesNotExist:
+        address = None
+
+    if request.method == 'POST':
+        # Handle form submission
+        name = request.POST.get('name', '')
+        mobile = request.POST.get('mobile', '')
+        pincode = request.POST.get('pincode', '')
+        locality = request.POST.get('locality', '')
+        address_text = request.POST.get('address', '')
+        city = request.POST.get('city', '')
+        state = request.POST.get('state', '')
+        landmark = request.POST.get('landmark', '')
+        
+
+        if address:
+            # Update existing address
+            address.name = name
+            address.mobile = mobile
+            address.pincode = pincode
+            address.locality = locality
+            address.address = address_text
+            address.city = city
+            address.state = state
+            address.landmark = landmark
+           
+            
+            address.save()
+        else:
+            # Create a new address
+            Address.objects.create(
+                user=user,
+                name=name,
+                mobile=mobile,
+                pincode=pincode,
+                locality=locality,
+                address=address_text,
+                city=city,
+                state=state,
+                landmark=landmark,
+               
+            )
+    
+
+
+    return render(request, 'customer/checkout.html', {'total_amount': total_amount,'address': address})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# from django.shortcuts import render
+# from django.core.mail import send_mail
+# from django.template.loader import render_to_string
+# from django.utils.html import strip_tags
+# from django.http import HttpResponse
+# from django.contrib.auth.decorators import login_required
+# from .models import Bid, AddProduct, User
+# from django.core.mail import send_mail
+# import threading
+
+# @login_required
+# def contact_second_winner(request, product_id, second_winner_id):
+#     try:
+#         product = AddProduct.objects.get(pk=product_id)
+#         second_winner = User.objects.get(pk=second_winner_id)
+#     except (AddProduct.DoesNotExist, User.DoesNotExist):
+#         return HttpResponse("Invalid product or second winner ID")
+
+#     # Compose the email content
+#     subject = f"Congratulations! You are the Second Winner for {product.product_name}"
+#     message = f"Dear {second_winner.username},\n\n" \
+#               f"Congratulations! You are the Second Winner for the product '{product.product_name}'.\n" \
+#               f"The auction started on {product.auction_start_datetime} and ended on {product.auction_end_datetime}.\n" \
+#               f"You can purchase the product now.\n\n" \
+#               f"Product Image: {product.image1.url}\n\n" \
+#               f"Thank you for participating!\n\n" \
+#               f"Best regards,\nThe Auction Team"
+
+#     # Start a new thread to send the email
+#     email_thread = threading.Thread(target=send_email_in_thread, args=(subject, message, 'hsree524@gmail.com', [second_winner.email]))
+#     email_thread.start()
+
+#     # Join the thread to ensure it completes before returning the HttpResponse
+#     email_thread.join()
+
+#     return HttpResponse("Success")
+
+
+# def send_email_in_thread(subject, message, from_email, recipient_list):
+#     send_mail(subject, message, from_email, recipient_list)

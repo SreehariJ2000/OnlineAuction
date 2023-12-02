@@ -23,7 +23,9 @@ urlpatterns = [
     path('more_product_details/<int:product_id>/',views.more_product_details,name='more_product_details'),
     path('approved_product/<int:product_id>/',views.approved_product,name='approved_product'),
     path('reject_product/<int:product_id>/', views.reject_product, name='reject_product'),
-       path('second_winner/', views.second_winner, name='second_winner'),
+    path('second_winner/', views.second_winner, name='second_winner'),
+    
+      
     
 
 #customer side
@@ -36,10 +38,12 @@ urlpatterns = [
     path('winner_cart/', views.winner_cart, name='winner_cart'),
     path('auctionhistory/', views.auction_history, name='auction_history'),
     path('history_details/<int:product_id>',views.history_details,name='history_details'),
+    path('checkout/', views.checkout, name='checkout'),
     
     
     #seller side
     path('product_status/', views.seller_products, name='seller_products'),
     path('progress_status/<int:product_id>',views.progress_status,name="progress_status"),
+     path('contact-second-winner/<int:product_id>/<int:second_winner_id>/', views.contact_second_winner, name='contact_second_winner'),
 
 ]

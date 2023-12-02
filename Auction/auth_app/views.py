@@ -315,7 +315,65 @@ def update_profile(request):
         return render(request, 'auth/update_profile.html', {'user': request.user})
 
 
-  
+
+@login_required
+def add_address(request):
+    user = request.user
+
+    # Check if the user already has an address
+    try:
+        address = Address.objects.get(user=user)
+    except Address.DoesNotExist:
+        address = None
+
+    if request.method == 'POST':
+        # Handle form submission
+        name = request.POST['name']
+        mobile = request.POST['mobile']
+        pincode = request.POST['pincode']
+        locality = request.POST['locality']
+        address_text = request.POST['address']
+        city = request.POST['city']
+        state = request.POST['state']
+        landmark = request.POST['landmark']
+        alt_phone = request.POST['alt_phone']
+        address_type = request.POST['address_type']
+
+        if address:
+            # Update existing address
+            address.name = name
+            address.mobile = mobile
+            address.pincode = pincode
+            address.locality = locality
+            address.address = address_text
+            address.city = city
+            address.state = state
+            address.landmark = landmark
+            address.alt_phone = alt_phone
+            address.address_type = address_type
+            address.save()
+        else:
+            # Create a new address
+            Address.objects.create(
+                user=user,
+                name=name,
+                mobile=mobile,
+                pincode=pincode,
+                locality=locality,
+                address=address_text,
+                city=city,
+                state=state,
+                landmark=landmark,
+                alt_phone=alt_phone,
+                address_type=address_type
+            )
+
+        return redirect('add_address')
+
+    # Render the form with existing data if available
+    return render(request, 'add_address.html', {'address': address})
+
+
 
 
 

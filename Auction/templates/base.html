@@ -75,9 +75,10 @@
           <li class="dropdown"><a href="#"><span>Hello {{user.first_name}}</span> <i class="bi bi-chevron-right"></i></a>
             <ul>
               <li><a href="{% url "update-profile" %}">My profile</a></li>
+              <li><a href="{% url "add_address" %}">Add Address</a></li>
               <li><a href="{% url "winner_cart" %}">Mycollections</a></li>
               <li><a href="{% url "auction_history" %}">History</a></li>
-              <li><a href="{% url "handlelogout" %}">log out</a></li>
+              <li><a href="{% url "handlelogout" %}">Log out</a></li>
 
             </ul>
           </li>

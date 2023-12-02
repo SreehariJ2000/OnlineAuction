@@ -22,6 +22,27 @@ class Profile(models.Model):
         return self.user.username
     
 
+from django.db import models
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class Address(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    mobile = models.CharField(max_length=10)
+    pincode = models.PositiveIntegerField()
+    locality = models.CharField(max_length=255)
+    address = models.CharField(max_length=255)
+    city = models.CharField(max_length=255)
+    state = models.CharField(max_length=255)
+    landmark = models.CharField(max_length=255, blank=True, null=True)
+    alt_phone = models.CharField(max_length=10, blank=True, null=True)
+    address_type = models.CharField(max_length=10, choices=[('home', 'Home'), ('work', 'Work')])
+    
+    def __str__(self):
+        return f"{self.name} - {self.address_type} Address"
+
 
 
 

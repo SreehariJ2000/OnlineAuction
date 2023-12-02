@@ -47,10 +47,13 @@
             <div class="cart-item-details">
               <h3>{{ cart_item.product.product_name }}</h3>
               <p>Amount: {{ cart_item.product.current_highest_bid }}</p>
-              <button class="purchase-button" onclick="purchaseProduct({{ cart_item.product.id }})">Purchase</button>
+              
             </div>
           </div>
         {% endfor %}
+        <button class="btn btn-primary purchase-button" onclick="redirectToCheckout()">Purchase</button>
+
+
       {% else %}
         <p>Your winning  is empty.</p>
       {% endif %}
@@ -58,9 +61,11 @@
   </div>
 
   <script>
-    function purchaseProduct(productId) {
-      // You can implement the logic to handle the purchase here
-      alert('Product purchased!');  // Placeholder, replace with actual logic
+    function redirectToCheckout() {
+      // Replace "/checkout" with the actual URL of your checkout page
+      window.location.href = "/checkout";
     }
   </script>
+  
+    
 {% endblock %}
