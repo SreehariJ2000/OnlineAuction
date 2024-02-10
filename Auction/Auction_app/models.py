@@ -42,6 +42,10 @@ class AddProduct(models.Model):
     admin_approval = models.BooleanField(default=False)
     current_price=models.IntegerField(default=0.0)
     current_highest_bid = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+
+
+    def total_sales(self):
+        return ProductSale.objects.filter(product=self).aggregate(total_sales=models.Sum('sale_amount'))['total_sales'] or 0.0
     
 
 	
@@ -56,6 +60,9 @@ class Bid(models.Model):
     bid_amount = models.DecimalField(max_digits=10, decimal_places=2)
     timestamp = models.DateTimeField(default=timezone.now)
 
+    def __str__(self):
+        return self.product.product_name
+
 
 class Cart(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE)
@@ -66,3 +73,46 @@ class CartItems(models.Model):
     cart = models.ForeignKey(Cart,on_delete=models.CASCADE)
     product=models.ForeignKey(AddProduct,on_delete=models.CASCADE)
     
+
+
+
+class RejectedProduct(models.Model):
+    product = models.ForeignKey(AddProduct, on_delete=models.CASCADE)
+    reauction=models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.product.product_name
+
+
+
+class ProductSale(models.Model):
+    product = models.ForeignKey(AddProduct, on_delete=models.CASCADE)
+    sale_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    sale_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.product.product_name} - {self.sale_date}"
+
+
+class UserPayment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    cart = models.IntegerField(blank=True, null=True)
+    amount = models.IntegerField(default=0)
+    datetime = models.TextField(default="empty")
+    order_id_data = models.TextField(default="empty")
+    payment_id_data = models.TextField(default="empty")
+    
+
+
+
+class DeliveryBoy(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    contact_number = models.CharField(max_length=15)
+    address = models.TextField()
+    vehicle_type = models.CharField(max_length=50)
+    registration_number = models.CharField(max_length=20)
+    delivery_zones = models.TextField()
+    availability_timings = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.user.first_name  # or any other field you want to display

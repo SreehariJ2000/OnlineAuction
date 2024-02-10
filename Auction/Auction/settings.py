@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'Auction_app',
     'auth_app',
     'ckeditor',
+    'chartjs'
 ]
 
 MIDDLEWARE = [
@@ -157,3 +158,8 @@ SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_COOKIE_NAME = "sessionid"
 SESSION_COOKIE_AGE = 10000
 LOGIN_URL='/handlelogin/'
+
+
+
+RAZOR_KEY_ID = 'rzp_test_jtj7qooR9ahhtO'
+RAZOR_KEY_SECRET = 'GWTXkw8I26NQWO43B0Coce1k'

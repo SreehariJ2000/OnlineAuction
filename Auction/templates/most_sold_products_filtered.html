@@ -1,0 +1,35 @@
+{% extends 'sellor/sellor_base.html' %}
+
+{% block style %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+{% endblock style %}
+
+{% block body %}
+    <h2>Most Sold Products (Filtered)</h2>
+
+    <form method="get" action="{% url 'most_sold_products_filtered' %}">
+        <label for="month">Filter by Month:</label>
+        <input type="month" id="month" name="month">
+        <button type="submit">Apply Filter</button>
+    </form>
+
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Product Name</th>
+                <th scope="col">Total Sales Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+                <tr>
+                    <td>{{ product.product_name }}</td>
+                    <td>{{ product.current_highest_bid }}1</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+{% endblock body %}

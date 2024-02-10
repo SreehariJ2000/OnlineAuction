@@ -57,7 +57,11 @@
         <p>Product Image: <img src="{{ product.image1.url }}" alt="Product Image"></p>
         <p>Thank you for participating!</p>
         <p>Best regards,<br>The Auction Team</p>
-        <a href="{purchase_link}" class="button">Purchase Now</a>
+        
+        <!-- product_detail.html or wherever you display product details -->
+        <a href="http://127.0.0.1:8000/product_donotbuy_seconduser/{{ product.id }}/" class="button">Reject</a>
+
+
     </div>
 </body>
 

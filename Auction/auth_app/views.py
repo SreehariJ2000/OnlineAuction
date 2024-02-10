@@ -371,7 +371,7 @@ def add_address(request):
         return redirect('add_address')
 
     # Render the form with existing data if available
-    return render(request, 'add_address.html', {'address': address})
+    return render(request, 'customer/add_address.html', {'address': address})
 
 
 

@@ -1,0 +1,20 @@
+{% extends "admin/adminnav.html" %}
+
+{% block style %}{% endblock style %}
+
+{% block body %}
+
+<h1>Add Delivery Boys</h1>
+
+<!-- Display a button to trigger the file input -->
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="xl_sheet" accept=".xlsx, .xls">
+    <button type="submit">Add Delivery Boys</button>
+</form>
+
+<!-- Display messages (success or error) -->
+{% for message in messages %}
+    <div>{{ message }}</div>
+{% endfor %}
+{% endblock body %}

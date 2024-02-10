@@ -1,0 +1,84 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Antique Treasure Delivery Service</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <style>
+        /* Add additional styles here */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #1f2937;
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #4b5563;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        strong {
+            color: #2563eb;
+        }
+        .thank-you {
+            color: #6b7280;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .logo {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+
+        .logo img {
+            width: 100%; /* Adjust the width */
+            height: auto; /* Maintain aspect ratio */
+            max-width: 200px; /* Maximum width */
+            max-height: 200px; /* Maximum height */
+        }
+
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .fadeIn {
+            animation: fadeIn 1s ease-in-out;
+        }
+    </style>
+</head>
+<body class="fadeIn">
+    <div class="container">
+        <div class="logo">
+            
+            <img src="{% static 'static/assets/img/wall.jpg' %}" alt="Antique Treasure Logo">
+        </div>
+        <h2>Welcome to Antique Treasure </h2>
+        <p>Hello {{ firstname }},</p>
+        <p>You have been added as a delivery boy. Your temporary password is: <strong>{{ password }}</strong></p>
+        <p>Please log in and change your password as soon as possible.</p>
+        <p class="thank-you">Thank you for joining our service!</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{% extends 'sellor/sellor_base.html' %}
+
+{% block body %}
+    <h2>Most Sold Products Chart</h2>
+    <canvas id="mostSoldProductsChart" width="400" height="200"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var ctx = document.getElementById('mostSoldProductsChart').getContext('2d');
+
+            var labels = {{ labels|safe }};
+            var data = {{ data|safe }};
+
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total Sales',
+                        data: data,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                }
+            });
+        });
+    </script>
+{% endblock body %}

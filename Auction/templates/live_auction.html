@@ -12,10 +12,10 @@
 
 {% block body %}
 
-<div class="container mt-5">
+<div class="container ">
   <div class="row">
     {% for product in live_auctions %}
-      <div class="col-4 mt-5">
+      <div class="col-4">
         <div class="card" style="width: 18rem">
           <img
             src="{{ product.image1.url }}"
@@ -32,7 +32,7 @@
             <!-- Add this where you want to display the timer -->
             <p>Time Left: <span id="timer_{{ product.id }}"></span></p>
 
-            <a href="{% url 'bidding' product.id %}" class="btn btn-danger">bid</a>
+            <a href="{% url 'bidding' product.id %}" class="btn btn-danger" id="bidding">bid</a>
           </div>
         </div>
       </div>

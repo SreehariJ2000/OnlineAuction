@@ -18,6 +18,10 @@ from django.http import JsonResponse
 
 from django.db.models import OuterRef, Subquery
 
+import pandas as pd
+
+
+
 
 # Create your views here.
 @never_cache
@@ -93,6 +97,7 @@ def deactivate_user(request, user_id):
 
 def sellor_approval(request):
     unapproved_sellers = SellerProfile.objects.filter(is_approved=False)
+    messages.warning(request,"admin approved sucessfully")
     
     return render(request,'admin/pending_sellor_activation.html',{'unapproved_sellers': unapproved_sellers})
 
@@ -206,15 +211,11 @@ def add_product(request):
 
 
 
-
-
-
 @login_required(login_url="/auth_app/handlelogin/")
 def product_approval(request):
     unapproved_products = AddProduct.objects.filter(admin_approval=False)
     
     return render(request,'admin/pending_product.html',{'unapproved_products': unapproved_products})
-
 
 
 
@@ -286,8 +287,7 @@ def more_product_details(request,product_id):
     return render(request,'admin/more_product_detail.html', {'product': product})
 
 
-       
-@login_required(login_url="/auth_app/handlelogin/")
+
 def live_auctions(request):
     
     current_time = timezone.now()
@@ -310,6 +310,7 @@ def live_auctions(request):
     return render(request, 'live_auction.html', {'live_auctions': live_auctions})
 
 
+@never_cache
 @login_required(login_url="/auth_app/handlelogin/")
 def upcoming_auctions(request):
     
@@ -323,7 +324,7 @@ def upcoming_auctions(request):
 
 
 
-@login_required(login_url="/auth_app/handlelogin/")
+
 def bidding(request, product_id):
     user = request.user
     product = AddProduct.objects.get(id=product_id)
@@ -458,6 +459,96 @@ def addtocart(request):
 
 
 
+from django.http import JsonResponse
+
+def start_reauction_view(request):
+    if request.method == 'POST':
+        
+        start_date = request.POST.get('start_date')        
+        end_date = request.POST.get('end_date')
+        pid=request.POST.get('product_id')
+        
+
+        if start_date:
+            print("start date",start_date)
+        if pid: 
+            print("Product ID:", pid)
+
+            
+        # Fetch the AddProduct with the given pid
+        product = get_object_or_404(AddProduct, pk=pid)
+
+        # Update the start time and end time
+        product.auction_start_datetime = start_date
+        product.auction_end_datetime = end_date
+        product.save()
+
+        # Set reauction to True in RejectedProduct
+        rejected_product = RejectedProduct.objects.get(product=product)
+        rejected_product.reauction = True
+        rejected_product.save()
+            
+        
+        
+        return JsonResponse({'status': 'success', 'message': 'Reauction started successfully'})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+
+
+from django.views.generic import TemplateView
+from django.db.models import Sum
+from django.db.models.functions import TruncMonth
+
+class MostSoldProductsChartView(TemplateView):
+    template_name = 'chart.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['labels'] = self.get_labels()
+        context['data'] = self.get_data()
+        return context
+
+    def get_labels(self):
+        return [str(item['month']) for item in self.get_monthly_data()]
+
+    def get_data(self):
+        return [item['total_sales'] for item in self.get_monthly_data()]
+
+    def get_monthly_data(self):
+        return ProductSale.objects.annotate(month=TruncMonth('sale_date')).values('month').annotate(total_sales=Sum('sale_amount')).order_by('month')
+
+
+
+from django.views.generic.list import ListView
+from django.db.models import Sum
+
+from django.db.models import Sum
+
+class MostSoldProductsFilteredView(ListView):
+    model = AddProduct
+    template_name = 'most_sold_products_filtered.html'
+    context_object_name = 'products'
+
+    def get_queryset(self):
+        queryset = AddProduct.objects.annotate(total_sales=Sum('productsale__sale_amount')).order_by('-total_sales')
+        
+        month_filter = self.request.GET.get('month')
+        if month_filter:
+            # Convert the month string to a valid numeric value
+            try:
+                month_numeric = int(month_filter.split('-')[1])
+            except ValueError:
+                # Handle the case where the month string is not a valid number
+                month_numeric = None
+            
+            if month_numeric is not None:
+                # Use the Bid model's relationship with AddProduct to filter by timestamp
+                queryset = queryset.filter(bid__timestamp__month=month_numeric)
+        
+        return queryset
+
+
 
 from django.db.models import Sum
 from django.shortcuts import render
@@ -471,8 +562,8 @@ def winner_cart(request):
     if winner_cart:
         expired_products = CartItems.objects.filter(
             cart=winner_cart,
+            #product__auction_end_datetime__lt=timezone.now() - timedelta(hours=24)
             product__auction_end_datetime__lt=timezone.now() - timedelta(hours=24)
-            #product__auction_end_datetime__lt=timezone.now() - timedelta(minutes=3)
         )
 
         for item in expired_products:
@@ -569,7 +660,7 @@ def contact_second_winner(request, product_id, second_winner_id):
     html_message = render_to_string('email_template.html', {
         'second_winner': second_winner,
         'product': product,
-        'purchase_link': 'your_purchase_link_here',  # Replace with the actual purchase link
+       
     })
 
     # Send the email using a separate thread
@@ -585,68 +676,186 @@ def send_email_in_thread(subject, message, from_email, recipient_list):
 
 
 
+
+def product_donotbuy_seconduser(request,product_id):
+    product = AddProduct.objects.get(pk=product_id)
+
+    RejectedProduct.objects.create(product=product)
+    return HttpResponse("Thankyou for your response!!!!")
+    
+
+
+def rejected_products(request):
+    rejected_products = RejectedProduct.objects.filter(reauction=False)
+    return render(request, 'sellor/rejected_product.html', {'rejected_products': rejected_products})
+
+
+
+from django.shortcuts import render
+import razorpay
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponseBadRequest
+ 
+ 
+# authorize razorpay client with API Keys.
+razorpay_client = razorpay.Client(
+    auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))
+ 
+
 def checkout(request):
-    # Fetch the user's cart items
+    # Fetch the user's cart item 
     user_cart = Cart.objects.get(user=request.user)
     cart_items = CartItems.objects.filter(cart=user_cart)
     total_amount = sum(item.product.current_highest_bid for item in cart_items)
 
     user = request.user
-
-    # Check if the user already has an address
     try:
         address = Address.objects.get(user=user)
     except Address.DoesNotExist:
-        address = None
-
-    if request.method == 'POST':
-        # Handle form submission
-        name = request.POST.get('name', '')
-        mobile = request.POST.get('mobile', '')
-        pincode = request.POST.get('pincode', '')
-        locality = request.POST.get('locality', '')
-        address_text = request.POST.get('address', '')
-        city = request.POST.get('city', '')
-        state = request.POST.get('state', '')
-        landmark = request.POST.get('landmark', '')
-        
-
-        if address:
-            # Update existing address
-            address.name = name
-            address.mobile = mobile
-            address.pincode = pincode
-            address.locality = locality
-            address.address = address_text
-            address.city = city
-            address.state = state
-            address.landmark = landmark
-           
-            
-            address.save()
-        else:
-            # Create a new address
-            Address.objects.create(
-                user=user,
-                name=name,
-                mobile=mobile,
-                pincode=pincode,
-                locality=locality,
-                address=address_text,
-                city=city,
-                state=state,
-                landmark=landmark,
-               
-            )
+        return redirect('/add_address')
     
+    currency = 'INR'
+    amount = int(total_amount * 100)  
+    razorpay_order = razorpay_client.order.create(dict(amount=amount,
+                                                       currency=currency,
+                                                       payment_capture='0'))
+
+    razorpay_order_id = razorpay_order['id']
+    callback_url = '/paymenthandler/'
+ 
+    # we need to pass these details to frontend.
+    context = {}
+    context['razorpay_order_id'] = razorpay_order_id
+    context['razorpay_merchant_key'] = settings.RAZOR_KEY_ID
+    context['razorpay_amount'] = amount
+    context['currency'] = currency
+    context['callback_url'] = callback_url
+    context['total_amount'] = total_amount
+    context['address'] = address
+    
+    return render(request, 'customer/checkout.html', context=context)
 
 
-    return render(request, 'customer/checkout.html', {'total_amount': total_amount,'address': address})
 
 
+@csrf_exempt
+def paymenthandler(request):
+ 
+    # only accept POST request.
+    if request.method == "POST":
+       
+        try:
+            print("111111111111")
+            # get the required parameters from post request.
+            payment_id = request.POST.get('razorpay_payment_id', '')
+            razorpay_order_id = request.POST.get('razorpay_order_id', '')
+            signature = request.POST.get('razorpay_signature', '')
+           
+            print(razorpay_order_id)
+            
+            print("2222222")
+            print(payment_id,razorpay_order_id,signature)
+            
+            params_dict = {
+                'razorpay_order_id': razorpay_order_id,
+                'razorpay_payment_id': payment_id,
+                'razorpay_signature': signature
+            }
 
 
+            user_cart = Cart.objects.get(user=request.user)
+            cart_items = CartItems.objects.filter(cart=user_cart)
+            total_amount = sum(item.product.current_highest_bid for item in cart_items)
+            print("Total Amount ffffffffffffff",total_amount)
 
+ 
+            # verify the payment signature.
+            result = razorpay_client.utility.verify_payment_signature(
+                params_dict)
+            
+            print("55555555555555555555555")
+            print(result)
+            if result is not None:
+                current_datetime = timezone.now()
+                user_payment_instance = UserPayment.objects.create(
+                    user=request.user,
+                    amount=total_amount,
+                    datetime=current_datetime,
+                    order_id_data=razorpay_order_id,
+                    payment_id_data=payment_id,)
+                cart = get_object_or_404(Cart, user=request.user, is_paid=False)
+                #amount = 700000  
+                try:
+                    cart.is_paid = True
+                    cart.save()                  
+                    
+
+                    cart_items = CartItems.objects.filter(cart=cart)
+                    for cart_item in cart_items:
+                        product = cart_item.product
+                        product.is_live = True
+                        product.save()
+                      
+                    return HttpResponse("Payment successful")
+                except:
+                 
+                    return HttpResponse("some thing went wrong !! please try again")
+            else:
+ 
+                
+                return  HttpResponse("some thing went wrong !! please try again")
+        except:
+ 
+            return HttpResponse("Payment failed . please try again")
+    else:
+      
+        return  HttpResponse("some thing went wrong !! please try again")
+
+# @csrf_exempt
+# def paymenthandler(request):
+#     if request.method == "POST":
+#         try:
+#             payment_id = request.POST.get('razorpay_payment_id', '')
+#             razorpay_order_id = request.POST.get('razorpay_order_id', '')
+#             signature = request.POST.get('razorpay_signature', '')
+#             params_dict = {
+#                 'razorpay_order_id': razorpay_order_id,
+#                 'razorpay_payment_id': payment_id,
+#                 'razorpay_signature': signature
+#             }
+
+#             result = razorpay_client.utility.verify_payment_signature(params_dict)
+            
+#             if result is not None:
+#                 amount = 20000  # Rs. 200
+                
+#                 try:
+#                     # Capture the payment
+#                     razorpay_client.payment.capture(payment_id, amount)
+
+#                     # Save payment details to the database
+#                     Payment.objects.create(
+#                         user=request.user,
+#                         order_id=razorpay_order_id,
+#                         amount=amount,
+#                         payment_id=payment_id
+#                     )
+
+#                     # Render success page on successful capture of payment
+#                     return render(request, 'paymentsuccess.html')
+
+#                 except Exception as e:
+#                     return render(request, 'paymentfail.html', {'error_message': str(e)})
+
+#             else:
+#                 return render(request, 'paymentfail.html', {'error_message': 'Signature verification failed'})
+
+#         except Exception as e:
+#             return HttpResponseBadRequest('Invalid request')
+
+#     else:
+#         return HttpResponseBadRequest('Invalid request')
 
 
 
@@ -703,3 +912,132 @@ def checkout(request):
 
 # def send_email_in_thread(subject, message, from_email, recipient_list):
 #     send_mail(subject, message, from_email, recipient_list)
+    
+
+
+
+
+
+# def add_delivery_boys(request):
+#     if request.method == 'POST' and request.FILES['xl_sheet']:
+#         xl_sheet = request.FILES['xl_sheet']
+
+#         try:
+#             df = pd.read_excel(xl_sheet)
+
+#             for _, row in df.iterrows():
+#                 # Create a unique username and password for each delivery boy
+#                 username = row['Email']
+#                 password = User.objects.make_random_password()
+
+                
+#                 user = User.objects.create_user(
+#                     username=username,
+#                     email=row['Email'],
+#                     password=password,
+#                     first_name=row['Firstname'],
+#                     last_name=['Lastname'],
+#                     role='SERVICE'
+#                 )
+
+                
+#                 contact_number = row['Contact Number']
+#                 address = row['Address']
+#                 vehicle_type = row['Vehicle Type']
+#                 registration_number = row['Registration Number']
+#                 delivery_zones = row['Delivery Zones']
+#                 availability_timings = row['Availability Timings']
+
+             
+#                 delivery_boy = DeliveryBoy.objects.create(
+#                     user=user,
+#                     contact_number=contact_number,
+#                     address=address,
+#                     vehicle_type=vehicle_type,
+#                     registration_number=registration_number,
+#                     delivery_zones=delivery_zones,
+#                     availability_timings=availability_timings
+#                 )
+
+#                 # Send an email to the delivery boy with their password
+#                 subject = 'Welcome to the Delivery Service'
+#                 message = f'Hello {row["Firstname"]},\n\nYou have been added as a delivery boy. Your password is: {password}'
+#                 from_email = 'your@example.com'  # Update with your email address
+#                 to_email = [row['Email']]
+#                 send_mail(subject, message, from_email, to_email, fail_silently=False)
+
+#                 # Notify the user that delivery boys were added successfully
+#                 messages.success(request, 'Delivery boys added successfully.')
+
+#         except Exception as e:
+#             messages.error(request, f'Error processing the Excel sheet: {e}')
+
+#     return render(request, 'admin/add_delivery_boys.html')
+
+
+
+from django.core.mail import EmailMessage
+
+
+def sendmail_in_thread(subject, html_message, to_email):
+    email = EmailMessage(subject, html_message, to=to_email)
+    email.content_subtype = "html"
+    email.send()
+
+def add_delivery_boys(request):
+    if request.method == 'POST' and request.FILES['xl_sheet']:
+        xl_sheet = request.FILES['xl_sheet']
+
+        try:
+            df = pd.read_excel(xl_sheet)
+
+            for _, row in df.iterrows():
+                # Create a unique username and password for each delivery boy
+                username = row['Email']
+                password = User.objects.make_random_password()
+
+                user = User.objects.create_user(
+                    username=username,
+                    email=row['Email'],
+                    password=password,
+                    first_name=row['Firstname'],
+                    last_name=row['Lastname'],
+                    role='SERVICE'
+                )
+
+                contact_number = row['Contact Number']
+                address = row['Address']
+                vehicle_type = row['Vehicle Type']
+                registration_number = row['Registration Number']
+                delivery_zones = row['Delivery Zones']
+                availability_timings = row['Availability Timings']
+
+                delivery_boy = DeliveryBoy.objects.create(
+                    user=user,
+                    contact_number=contact_number,
+                    address=address,
+                    vehicle_type=vehicle_type,
+                    registration_number=registration_number,
+                    delivery_zones=delivery_zones,
+                    availability_timings=availability_timings
+                )
+
+                # Send an email to the delivery boy with their password
+                subject = 'Welcome to the Delivery Service'
+                html_message = render_to_string('email_to_deliveryboy.html', {
+                    'firstname': row['Firstname'],
+                    'password': password,
+                })
+                to_email = [row['Email']]
+
+                # Use a thread to send the email asynchronously
+                email_thread = threading.Thread(target=sendmail_in_thread, args=(subject, html_message, to_email))
+                email_thread.start()
+
+                # Notify the user that delivery boys were added successfully
+                messages.success(request, 'Delivery boys added successfully.')
+
+        except Exception as e:
+            messages.error(request, f'Error processing the Excel sheet: {e}')
+
+    return render(request, 'admin/add_delivery_boys.html')

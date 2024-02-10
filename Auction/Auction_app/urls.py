@@ -1,6 +1,8 @@
 
 from django.urls import path
 from Auction_app import views
+from .views import MostSoldProductsChartView
+from .views import MostSoldProductsFilteredView
 
 urlpatterns = [
     
@@ -39,11 +41,24 @@ urlpatterns = [
     path('auctionhistory/', views.auction_history, name='auction_history'),
     path('history_details/<int:product_id>',views.history_details,name='history_details'),
     path('checkout/', views.checkout, name='checkout'),
+     path('paymenthandler/', views.paymenthandler, name='paymenthandler'),
     
     
     #seller side
     path('product_status/', views.seller_products, name='seller_products'),
     path('progress_status/<int:product_id>',views.progress_status,name="progress_status"),
-     path('contact-second-winner/<int:product_id>/<int:second_winner_id>/', views.contact_second_winner, name='contact_second_winner'),
+    path('contact-second-winner/<int:product_id>/<int:second_winner_id>/', views.contact_second_winner, name='contact_second_winner'),
+    path('product_donotbuy_seconduser/<int:product_id>/',views.product_donotbuy_seconduser,name="product_donotbuy_seconduser"),
+    path('rejected_products/', views.rejected_products, name='rejected_products'),
+    path('start_reauction/', views.start_reauction_view, name='start_reauction'),
+    path('most_sold_products_chart/', MostSoldProductsChartView.as_view(), name='most_sold_products_chart'),
+    path('most_sold_products_filtered/', MostSoldProductsFilteredView.as_view(), name='most_sold_products_filtered'),
 
+
+
+
+    #add delivery boy
+    path('add_delivery_boys/',views.add_delivery_boys,name="deliveryboy")
 ]
+
+
