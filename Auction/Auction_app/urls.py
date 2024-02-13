@@ -10,6 +10,7 @@ urlpatterns = [
     path('about/',views.about,name='about'),
     path('customerhome/',views.CustomerHome,name='customerhome'),
     path('adminhome/',views.adminhome,name='admin'),
+    path('deliveryboydashboard/',views.deliveryboydashboard,name='deliveryboydashboard'),
     path('add_product',views.add_product,name='add_product'),
     # path('api/get_categories/', views.get_categories, name='get_categories'),
     
@@ -41,7 +42,8 @@ urlpatterns = [
     path('auctionhistory/', views.auction_history, name='auction_history'),
     path('history_details/<int:product_id>',views.history_details,name='history_details'),
     path('checkout/', views.checkout, name='checkout'),
-     path('paymenthandler/', views.paymenthandler, name='paymenthandler'),
+    path('paymenthandler/', views.paymenthandler, name='paymenthandler'),
+    path('orderdetails',views.orderdetails,name='orderdetails'),
     
     
     #seller side
@@ -58,7 +60,8 @@ urlpatterns = [
 
 
     #add delivery boy
-    path('add_delivery_boys/',views.add_delivery_boys,name="deliveryboy")
+    path('add_delivery_boys/',views.add_delivery_boys,name="deliveryboy"),
+    path('Change_password/', views.Change_password, name='Change_password'),
 ]
 
 

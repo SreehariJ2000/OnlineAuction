@@ -785,6 +785,17 @@ def paymenthandler(request):
                     order_id_data=razorpay_order_id,
                     payment_id_data=payment_id,)
                 cart = get_object_or_404(Cart, user=request.user, is_paid=False)
+
+
+                order_instance = Order.objects.create(
+                    user=request.user,
+                    cart=user_cart.id,
+                    amount=total_amount,
+                    datetime=current_datetime,
+                    order_id_data=razorpay_order_id,
+                    payment_id_data=payment_id,
+                    status="completed"  # Set the status to completed or any other desired value
+                )
                 #amount = 700000  
                 try:
                     cart.is_paid = True
@@ -797,7 +808,7 @@ def paymenthandler(request):
                         product.is_live = True
                         product.save()
                       
-                    return HttpResponse("Payment successful")
+                    return redirect('orderdetails')
                 except:
                  
                     return HttpResponse("some thing went wrong !! please try again")
@@ -811,168 +822,71 @@ def paymenthandler(request):
     else:
       
         return  HttpResponse("some thing went wrong !! please try again")
-
-# @csrf_exempt
-# def paymenthandler(request):
-#     if request.method == "POST":
-#         try:
-#             payment_id = request.POST.get('razorpay_payment_id', '')
-#             razorpay_order_id = request.POST.get('razorpay_order_id', '')
-#             signature = request.POST.get('razorpay_signature', '')
-#             params_dict = {
-#                 'razorpay_order_id': razorpay_order_id,
-#                 'razorpay_payment_id': payment_id,
-#                 'razorpay_signature': signature
-#             }
-
-#             result = razorpay_client.utility.verify_payment_signature(params_dict)
-            
-#             if result is not None:
-#                 amount = 20000  # Rs. 200
-                
-#                 try:
-#                     # Capture the payment
-#                     razorpay_client.payment.capture(payment_id, amount)
-
-#                     # Save payment details to the database
-#                     Payment.objects.create(
-#                         user=request.user,
-#                         order_id=razorpay_order_id,
-#                         amount=amount,
-#                         payment_id=payment_id
-#                     )
-
-#                     # Render success page on successful capture of payment
-#                     return render(request, 'paymentsuccess.html')
-
-#                 except Exception as e:
-#                     return render(request, 'paymentfail.html', {'error_message': str(e)})
-
-#             else:
-#                 return render(request, 'paymentfail.html', {'error_message': 'Signature verification failed'})
-
-#         except Exception as e:
-#             return HttpResponseBadRequest('Invalid request')
-
-#     else:
-#         return HttpResponseBadRequest('Invalid request')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# from django.shortcuts import render
-# from django.core.mail import send_mail
-# from django.template.loader import render_to_string
-# from django.utils.html import strip_tags
-# from django.http import HttpResponse
-# from django.contrib.auth.decorators import login_required
-# from .models import Bid, AddProduct, User
-# from django.core.mail import send_mail
-# import threading
-
-# @login_required
-# def contact_second_winner(request, product_id, second_winner_id):
-#     try:
-#         product = AddProduct.objects.get(pk=product_id)
-#         second_winner = User.objects.get(pk=second_winner_id)
-#     except (AddProduct.DoesNotExist, User.DoesNotExist):
-#         return HttpResponse("Invalid product or second winner ID")
-
-#     # Compose the email content
-#     subject = f"Congratulations! You are the Second Winner for {product.product_name}"
-#     message = f"Dear {second_winner.username},\n\n" \
-#               f"Congratulations! You are the Second Winner for the product '{product.product_name}'.\n" \
-#               f"The auction started on {product.auction_start_datetime} and ended on {product.auction_end_datetime}.\n" \
-#               f"You can purchase the product now.\n\n" \
-#               f"Product Image: {product.image1.url}\n\n" \
-#               f"Thank you for participating!\n\n" \
-#               f"Best regards,\nThe Auction Team"
-
-#     # Start a new thread to send the email
-#     email_thread = threading.Thread(target=send_email_in_thread, args=(subject, message, 'hsree524@gmail.com', [second_winner.email]))
-#     email_thread.start()
-
-#     # Join the thread to ensure it completes before returning the HttpResponse
-#     email_thread.join()
-
-#     return HttpResponse("Success")
-
-
-# def send_email_in_thread(subject, message, from_email, recipient_list):
-#     send_mail(subject, message, from_email, recipient_list)
     
 
 
 
+# def orderdetails(request):
+   
+#     orders = Order.objects.filter(user=request.user)
+#     order_details = []
+#     for order in orders:
+#         user_cart = get_object_or_404(Cart, id=order.cart)
+#         cart_items = CartItems.objects.filter(cart=user_cart)
+#         product_details = []
+
+#         for cart_item in cart_items:
+#             product = cart_item.product
+#             product_details.append({
+#                 'product_name': product.product_name,
+#                 'image_url': product.image1.url,  # Change this to the appropriate field for the image
+#                 'amount': order.amount,
+#                 'order_id': order.order_id_data,
+#                 'status': order.status,
+#             })
+
+#         order_details.append(product_details)
+
+#     context = {'order_details': order_details}
+#     return render(request, 'customer/orderdetails.html', context)
+    
 
 
-# def add_delivery_boys(request):
-#     if request.method == 'POST' and request.FILES['xl_sheet']:
-#         xl_sheet = request.FILES['xl_sheet']
 
-#         try:
-#             df = pd.read_excel(xl_sheet)
+def orderdetails(request):
+    # Retrieve orders for the logged-in user
+    orders = Order.objects.filter(user=request.user)
 
-#             for _, row in df.iterrows():
-#                 # Create a unique username and password for each delivery boy
-#                 username = row['Email']
-#                 password = User.objects.make_random_password()
+    # Create a list to store details of each order
+    order_details = []
 
-                
-#                 user = User.objects.create_user(
-#                     username=username,
-#                     email=row['Email'],
-#                     password=password,
-#                     first_name=row['Firstname'],
-#                     last_name=['Lastname'],
-#                     role='SERVICE'
-#                 )
+    for order in orders:
+        user_cart = get_object_or_404(Cart, id=order.cart)
+        cart_items = CartItems.objects.filter(cart=user_cart)
 
-                
-#                 contact_number = row['Contact Number']
-#                 address = row['Address']
-#                 vehicle_type = row['Vehicle Type']
-#                 registration_number = row['Registration Number']
-#                 delivery_zones = row['Delivery Zones']
-#                 availability_timings = row['Availability Timings']
+        # Create a list to store details of each product in the order
+        product_details = []
 
-             
-#                 delivery_boy = DeliveryBoy.objects.create(
-#                     user=user,
-#                     contact_number=contact_number,
-#                     address=address,
-#                     vehicle_type=vehicle_type,
-#                     registration_number=registration_number,
-#                     delivery_zones=delivery_zones,
-#                     availability_timings=availability_timings
-#                 )
+        for cart_item in cart_items:
+            product = cart_item.product
+            product_details.append({
+                'product_name': product.product_name,
+                'image_url': product.image1.url,  # Change this to the appropriate field for the image
+                'amount': order.amount,
+                'order_id': order.order_id_data,
+                'status': order.status,
+            })
 
-#                 # Send an email to the delivery boy with their password
-#                 subject = 'Welcome to the Delivery Service'
-#                 message = f'Hello {row["Firstname"]},\n\nYou have been added as a delivery boy. Your password is: {password}'
-#                 from_email = 'your@example.com'  # Update with your email address
-#                 to_email = [row['Email']]
-#                 send_mail(subject, message, from_email, to_email, fail_silently=False)
+        # Fetch addresses for the user
+        addresses = Address.objects.filter(user=request.user)
 
-#                 # Notify the user that delivery boys were added successfully
-#                 messages.success(request, 'Delivery boys added successfully.')
+        order_details.append({
+            'product_details': product_details,
+            'addresses': addresses,
+        })
 
-#         except Exception as e:
-#             messages.error(request, f'Error processing the Excel sheet: {e}')
-
-#     return render(request, 'admin/add_delivery_boys.html')
+    context = {'order_details': order_details}
+    return render(request, 'customer/orderdetails.html', context)
 
 
 
@@ -1041,3 +955,34 @@ def add_delivery_boys(request):
             messages.error(request, f'Error processing the Excel sheet: {e}')
 
     return render(request, 'admin/add_delivery_boys.html')
+
+
+def deliveryboydashboard(request):
+    return render(request,'Delivery/deliverydashboard.html')
+
+
+
+from django.contrib.auth import update_session_auth_hash
+
+@login_required
+def Change_password(request):
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if new_password == confirm_password:
+            user = request.user
+            user.set_password(new_password)
+            user.save()
+
+            # Update session to prevent the user from being logged out
+            update_session_auth_hash(request, user)
+
+            messages.success(request, 'Password changed successfully.')
+            return redirect('ppppppppppp')
+        else:
+            messages.error(request, 'Passwords do not match.')
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+    

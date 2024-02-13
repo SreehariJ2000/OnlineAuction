@@ -135,7 +135,7 @@ def handlelogin(request):
             if myuser is not None:
                    login(request,myuser)
                    request.session['username']=username
-                        #request.session['username'] =myuser.username
+                       
                    if myuser.role=='CUSTOMER':
                         
                         return redirect('/customerhome')
@@ -145,6 +145,9 @@ def handlelogin(request):
                    elif myuser.role=='ADMIN':
                           
                           return redirect('/adminhome')
+                   
+                   elif myuser.role=='SERVICE':
+                        return redirect('/deliveryboydashboard')
                           
             else:
                    messages.error(request,"enter valid credentials")

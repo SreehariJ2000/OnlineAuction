@@ -1,0 +1,128 @@
+
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block style %}
+<style>
+
+  .card-container {
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    margin: 20px;
+}
+.card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.product-details {
+    display: flex;
+    align-items: center;
+}
+.product-image {
+    width: 60px;
+    height: auto;
+    margin-right: 20px;
+}
+.product-info {
+    display: flex;
+    flex-direction: row;
+    gap: 50px;
+    
+}
+
+
+.product-name {
+    font-size: 18px;
+    font-weight: bold;
+    margin-right: 20px; /* Add margin for spacing */
+}
+.product-color,
+.product-status {
+    font-size: 14px;
+    color: #555;
+    margin-right: 20px; /* Add margin for spacing */
+}
+.product-price {
+    font-size: 18px;
+    color: #333;
+    font-weight: bold;
+    margin-right: 20px; /* Add margin for spacing */
+}
+.status-icon {
+    height: 15px;
+    width: 15px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+}
+.delivered { background-color: #4CAF50; }
+.cancelled { background-color: #F44336; }
+
+</style>
+{% endblock style %}
+
+
+{% block body %}
+  <h1>Your Orders</h1>
+
+
+
+  <div class="card-container">
+    {% for order_detail in order_details %}
+      <div class="card">
+        {% for product_detail in order_detail.product_details %}
+          <div class="product-details">
+            <img src="{{ product_detail.image_url }}" alt="{{ product.product_name }}" class="product-image" style="width: 250px; height: 200px;">
+            <div class="product-info">
+              <div  class="product-name">{{ product_detail.product_name }}</div>
+              <div class="product-price">{{ product_detail.amount }}</div>
+              <!-- Add more details as needed -->
+              <div class="product-status">
+                {% if product_detail.status == "completed" %}
+                  <span class="status-icon delivered"></span>Delivered on {{ product.datetime }}
+                {% elif product.status == "Cancelled" %}
+                  <span class="status-icon cancelled"></span>Cancelled on {{ product.datetime }}
+                {% else %}
+                  <!-- Add other status conditions if needed -->
+                {% endif %}
+              
+            </div>
+            
+          </div>
+        {% endfor %}
+
+        <div class="addresses">
+          <h2>Addresses</h2>
+          {% for address in order_detail.addresses %}
+            <div class="address-card">
+              <p> {{ address.name }}</p>
+              <p> {{ address.address }},{{ address.city }},{{ address.state }},{{ address.pincode }}</p>
+              <p>{{ address.mobile }}</p>
+            
+
+              <p><strong>Type:</strong> {{ address.get_address_type_display }}</p>
+            </div>
+          {% endfor %}
+        </div>
+        {% for product_detail in order_detail.product_details %}
+        <button id="download-invoice-btn">Download Invoice</button>
+        <h1>{{ product_detail.pk }}</h1>
+        {% endfor %}
+      </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  
+
+{% endblock body  %}
+
+

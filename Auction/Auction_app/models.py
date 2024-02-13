@@ -116,3 +116,15 @@ class DeliveryBoy(models.Model):
 
     def __str__(self):
         return self.user.first_name  # or any other field you want to display
+
+
+from django.utils import timezone
+
+class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    cart = models.IntegerField(blank=True, null=True)
+    amount = models.IntegerField(default=0)
+    datetime = models.TextField(default="empty")
+    order_id_data = models.TextField(default="empty")
+    payment_id_data = models.TextField(default="empty")
+    status = models.CharField(max_length=100, default="pending")
