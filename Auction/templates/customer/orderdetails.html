@@ -113,14 +113,32 @@
           {% endfor %}
         </div>
         {% for product_detail in order_detail.product_details %}
-        <button id="download-invoice-btn">Download Invoice</button>
-        <h1>{{ product_detail.pk }}</h1>
+        
+        <button id="download-invoice-btn" data-order-id="{{ product_detail.order_id }}">Download Invoice</button>
+
+        
         {% endfor %}
       </div>
       </div>
     {% endfor %}
   </div>
 
+  <script>
+    document.querySelectorAll('#download-invoice-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        // Get the order ID from the data-order-id attribute
+        var orderId = btn.getAttribute('data-order-id');
+  
+        // Construct the URL for the download_invoice view
+        // Construct the URL for the download_invoice view
+        var url = '{% url "download_invoice" "placeholder_order_id" %}'.replace('placeholder_order_id', orderId);
+
+  
+        // Navigate to the download URL
+        window.location.href = url;
+      });
+    });
+  </script>
   
 
 {% endblock body  %}

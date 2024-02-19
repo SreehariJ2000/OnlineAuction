@@ -1,6 +1,102 @@
 {% extends "admin/adminnav.html" %}
 
-{% block style %}{% endblock style %}
+{% block style %}
+
+<style>
+
+    /* .bodyy {
+        font-family: Arial, sans-serif;
+        background-color: #f2f2f2;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      } */
+      .colo {
+        color: #da7217;
+        font-family: "Sofia", sans-serif;
+        font-size: 50px;
+      }
+      .container {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(221, 175, 90, 0.1); /* Light orange box shadow */
+        padding: 40px;
+        width: 450px;
+        border-radius: 50px;
+        border: 2px solid #5093db;                                                                  }
+      
+      h2 {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      
+      .form-group {
+        margin-bottom: 20px;
+      }
+      
+      label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      
+      input[type="text"],
+      input[type="email"],
+      input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 35px;
+        box-sizing: border-box;
+      }
+      
+      button {
+        font-family: "Raleway",sans-serif;
+        font-weight: 500;
+        font-size: 16px;
+        letter-spacing: 1px;
+        display: inline-block;
+        padding: 10px 30px;
+        border-radius: 50px;
+        transition: 0.5s;
+        color: #3498db;
+        border: 2px solid #3498db;
+      }
+      
+      button:hover {
+        background-color: #0056b3;
+      }
+      .form-group {
+
+        border-radius: 20px;
+        border-bottom: 4px solid rgb(9, 149, 188);
+    }
+    .styled-link {
+        font-family: "Raleway",sans-serif;
+        font-weight: 500;
+        font-size: 16px;
+        letter-spacing: 1px;
+        display: inline-block;
+        padding: 10px 30px;
+        border-radius: 50px;
+        transition: 0.5s;
+        color: #0d93ed;
+        border: 2px solid #3498db;
+        
+    }
+
+    .styled-link:hover {
+        background-color: #74aae4;
+    }
+
+    .styled-link::after {
+        content: '\00a0 \2192'; /* Right arrow Unicode */
+    }
+</style>
+{% endblock style %}
 
 {% block body %}
 
@@ -11,10 +107,67 @@
     {% csrf_token %}
     <input type="file" name="xl_sheet" accept=".xlsx, .xls">
     <button type="submit">Add Delivery Boys</button>
-</form>
+</form>  <br><br>
 
-<!-- Display messages (success or error) -->
-{% for message in messages %}
-    <div>{{ message }}</div>
-{% endfor %}
+<div class="bodyy">
+    <div class="container">
+        <div class="colo">
+            <h2 class="font-effect-fire">Add Delivery Boy</h2>
+        </div>
+        <form action="{% url 'register_delivery_boy' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="firstname">First Name:</label>
+                <input type="text" id="firstname" name="first_name" placeholder="Enter your first name" required>
+            </div>
+            <div class="form-group">
+                <label for="lastname">Last Name:</label>
+                <input type="text" id="lastname" name="last_name" placeholder="Enter your last name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+            </div>
+            <!-- <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div> -->
+            <div class="form-group">
+                <label for="contactno">Contact No:</label>
+                <input type="text" id="contactno" name="contact_no" placeholder="Enter your contact number" required>
+            </div>
+            <div class="form-group">
+                <label for="address">Address:</label>
+                <input type="text" id="address" name="address" placeholder="Enter your address" required>
+            </div>
+            <div class="form-group">
+                <label for="vehicle">Vehicle Type:</label>
+                <input type="text" id="vehicle" name="vehicle_type" placeholder="Enter your vehicle type" required>
+            </div>
+            <div class="form-group">
+                <label for="vehiclereg">Vehicle Registration No:</label>
+                <input type="text" id="vehiclereg" name="registration" placeholder="Enter your vehicle registration number" required>
+            </div>
+            <div class="form-group">
+                <label for="deliveryzones">Delivery Zones:</label>
+                <input type="text" id="deliveryzones" name="delivery_zones" placeholder="Enter delivery zones" required>
+            </div>
+            <div class="form-group">
+                <label for="availability">Availability Timing:</label>
+                <input type="text" id="availability" name="availability_timings" placeholder="Enter availability timing" required>
+            </div>
+            <center><button type="submit">Register</button></center>
+        </form><br>
+        <center><p>OR</p></center> 
+        <center>
+           
+        </center> 
+    </div>
+</div>
+
+
+
+
+
+
 {% endblock body %}

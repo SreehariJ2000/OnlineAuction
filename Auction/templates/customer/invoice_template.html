@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      /* Container styles */
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+  
+      /* Column styles */
+      .column {
+        float: left;
+        width: 33.33%;
+        box-sizing: border-box;
+        padding: 15px;
+        border: 1px solid #ccc;
+      }
+  
+      /* Clear floats to prevent container from collapsing */
+      .clearfix::after {
+        content: "";
+        display: table;
+        clear: both;
+      }
+  
+      /* Responsive layout - make the columns stack on top of each other on small screens */
+      @media (max-width: 768px) {
+        .column {
+          width: 100%;
+        }
+      }
+    </style>
+    <title>Invoice</title>
+</head>
+<body>
+    
+    
+  
+
+          <div class="container clearfix">
+            <!-- Column 1 -->
+            <div class="column">
+              <h2><h1>Invoice for Order ID: {{ order.order_id_data }}</h1></h2>
+              <p><h1>Total Amount: {{ order.amount }}</h1></p>
+            </div>
+        
+            <!-- Column 2 -->
+            <div class="column">
+              <h2>Address</h2>
+              <p>  {% for product_name in product_names %}
+                <h1> <li>{{ product_name }}</li> </h1>
+               {% endfor %}
+               {% for order_detail in order_details %}
+               {% for address in order_detail.addresses %}
+                         <div class="address-card">
+                           <p> <h2> {{ address.name }} </h2></p>
+                           <p> <h2>{{ address.address }},{{ address.city }},{{ address.state }},{{ address.pincode }} </h2></p>
+                           <p><h2>{{ address.mobile }} </h2></p>
+                         
+             
+                           <p><strong>Type:</strong> {{ address.get_address_type_display }}</p>
+                         </div>
+                       {% endfor %}
+                       {% endfor %}</p>
+            </div>
+        
+            <!-- Column 3 -->
+            <div class="column">
+              <h2></h2>
+              <p></p>
+            </div>
+          </div>
+</body>
+</html>

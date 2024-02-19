@@ -1,68 +1,42 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            color: #333333;
-        }
-
-        p {
-            color: #555555;
-        }
-
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 16px;
-            text-align: center;
-            text-decoration: none;
-            background-color: #007bff;
-            color: #ffffff;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-
-        .button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <title>Welcome to Antique Treasure Delivery Service</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
-
 <body>
-    <div class="container">
-        <h1>Congratulations! You are the Second Winner</h1>
-        <p>Dear {{ second_winner.username }},</p>
-        <p>Congratulations! You are the Second Winner for the product '{{ product.product_name }}'.</p>
-        <p>The auction started on {{ product.auction_start_datetime }} and ended on {{ product.auction_end_datetime }}.</p>
-        <p>You can purchase the product now.</p>
-        <p>Product Image: <img src="{{ product.image1.url }}" alt="Product Image"></p>
-        <p>Thank you for participating!</p>
-        <p>Best regards,<br>The Auction Team</p>
-        
-        <!-- product_detail.html or wherever you display product details -->
-        <a href="http://127.0.0.1:8000/product_donotbuy_seconduser/{{ product.id }}/" class="button">Reject</a>
-
-
+    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img src="{% static 'static/assets/img/wall.jpg' %}" alt="Antique Treasure Logo" style="width: 100%; max-width: 200px; height: auto;">
+        </div>
+        <h2 style="text-align: center; font-size: 24px; margin-bottom: 20px;">Welcome to Antique Treasure</h2>
+        <p>Hello {{ firstname }},</p>
+        <p>You have been added as a delivery boy. Your temporary password is: <strong>{{ password }}</strong></p>
+        <p>Please log in and change your password as soon as possible.</p>
+        <p style="text-align: center; margin-top: 20px;">Thank you for joining our service!</p>
     </div>
 </body>
-
+</html>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Antique Treasure Delivery Service</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div>
+        
+        <h2>Welcome to Antique Treasure</h2>
+        <p>Hello {{ firstname }},</p>
+        <p>You have been added as a delivery boy. Your temporary password is: <strong>{{ password }}</strong></p>
+        <p>Please log in and change your password as soon as possible.</p>
+        <p style="text-align: center; margin-top: 20px;">Thank you for joining our service!</p>
+    </div>
+</body>
 </html>

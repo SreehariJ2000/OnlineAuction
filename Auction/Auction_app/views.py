@@ -737,6 +737,19 @@ def checkout(request):
     return render(request, 'customer/checkout.html', context=context)
 
 
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+
+from django.db import models
+
+from geopy.geocoders import Nominatim
+
+
+@require_POST
+
+   
 
 
 @csrf_exempt
@@ -776,6 +789,8 @@ def paymenthandler(request):
             
             print("55555555555555555555555")
             print(result)
+
+           
             if result is not None:
                 current_datetime = timezone.now()
                 user_payment_instance = UserPayment.objects.create(
@@ -856,8 +871,6 @@ def paymenthandler(request):
 def orderdetails(request):
     # Retrieve orders for the logged-in user
     orders = Order.objects.filter(user=request.user)
-
-    # Create a list to store details of each order
     order_details = []
 
     for order in orders:
@@ -889,6 +902,43 @@ def orderdetails(request):
     return render(request, 'customer/orderdetails.html', context)
 
 
+
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from django.shortcuts import get_object_or_404
+
+def download_invoice(request, order_id):
+    # Query the Order model using the order_id field
+    order = get_object_or_404(Order, order_id_data=order_id)
+    cart_items = CartItems.objects.filter(cart=order.cart)
+    product_names = [item.product.product_name for item in cart_items]
+
+    addresses = Address.objects.filter(user=request.user)
+    order_details=[]
+
+    order_details.append({
+            
+            'addresses': addresses,
+        })
+
+    template_path = 'customer/invoice_template.html'
+    context = {'order': order,'product_names': product_names,'order_details': order_details}
+    template = get_template(template_path)
+    html = template.render(context)
+
+    # Create a response object with appropriate headers for downloading
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename=invoice_{order.order_id_data}.pdf'
+
+    # Create a PDF file
+    pisa_status = pisa.CreatePDF(html, dest=response)
+
+    # Check if the PDF creation was successful
+    if pisa_status.err:
+        return HttpResponse('Error creating PDF', content_type='text/plain')
+
+    return response
 
 from django.core.mail import EmailMessage
 
@@ -985,4 +1035,120 @@ def Change_password(request):
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
-    
+
+
+def delivery_boys_list(request):
+    delivery_boys = DeliveryBoy.objects.all()
+    return render(request, 'admin/delivery_boys_list.html', {'delivery_boys': delivery_boys})
+
+
+# views.py
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+
+def activate_delivery_boy(request, delivery_boy_id):
+    delivery_boy = get_object_or_404(DeliveryBoy, id=delivery_boy_id)
+    delivery_boy.user.is_active = True
+    delivery_boy.user.save()
+
+    # Send activation email
+    send_mail(
+        'Your account has been activated',
+        'Dear {},\n\nYour account has been activated.'.format(delivery_boy.user.get_full_name()),
+        'your_email@example.com',  # Set your email here
+        [delivery_boy.user.email],
+        fail_silently=False,
+    )
+
+    messages.success(request, f"{delivery_boy.user.get_full_name} has been activated.")
+    return redirect('delivery_boys_list')
+
+def deactivate_delivery_boy(request, delivery_boy_id):
+    delivery_boy = get_object_or_404(DeliveryBoy, id=delivery_boy_id)
+    delivery_boy.user.is_active = False
+    delivery_boy.user.save()
+
+    # Send deactivation email
+    send_mail(
+        'Your account has been deactivated',
+        'Dear {},\n\nYour account has been deactivated.'.format(delivery_boy.user.get_full_name()),
+        'your_email@example.com',  # Set your email here
+        [delivery_boy.user.email],
+        fail_silently=False,
+    )
+
+    messages.success(request, f"{delivery_boy.user.get_full_name} has been deactivated.")
+    return redirect('delivery_boys_list')
+
+
+
+
+# added by admin
+from django.contrib.auth import get_user_model
+from django.db import IntegrityError
+
+
+def sendmail_in_thread(subject, html_message, to_email):
+    email = EmailMessage(subject, strip_tags(html_message), to=to_email)
+    email.content_subtype = "html"
+    email.send()
+
+def register_delivery_boy(request):
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        contact_number = request.POST.get('contact_no')
+        address = request.POST.get('address')
+        vehicle_type = request.POST.get('vehicle_type')
+        registration_number = request.POST.get('registration')
+        delivery_zones = request.POST.get('delivery_zones')
+        availability_timings = request.POST.get('availability_timings')
+
+        random_password = get_user_model().objects.make_random_password()
+
+        try:
+            # Attempt to create a new user
+            user = get_user_model().objects.create_user(
+                first_name=first_name,
+                last_name=last_name,
+                username=email,
+                email=email,
+                password=random_password,
+                role='SERVICE'
+            )
+
+            # Create the delivery boy with the provided contact number
+            delivery_boy = DeliveryBoy.objects.create(
+                user=user,
+                contact_number=contact_number,
+                address=address,
+                vehicle_type=vehicle_type,
+                registration_number=registration_number,
+                delivery_zones=delivery_zones,
+                availability_timings=availability_timings
+            )
+            
+
+            # Send email with the random password
+            subject = 'Welcome to the Delivery Service'
+            html_message = render_to_string('email_to_deliveryboy.html', {'firstname': user.first_name, 'password': random_password})
+            to_email = [email]
+
+            # Use a thread to send the email asynchronously
+            email_thread = threading.Thread(target=sendmail_in_thread, args=(subject, html_message, to_email))
+            email_thread.start()
+
+            # Redirect to a success URL or page upon successful registration
+            messages.success(request, 'Delivery boys added successfully.')
+
+        except IntegrityError:
+            # Handle any IntegrityError
+            # For example, you can redirect the user to a different page or display an error message
+            messages.success(request, 'Delivery boys added not successfully.')
+
+    # Render the registration page template
+    return render(request, 'admin/add_delivery_boys.html')

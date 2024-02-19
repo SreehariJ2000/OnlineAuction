@@ -1,0 +1,83 @@
+{% extends "admin/adminnav.html" %}
+
+{% block style %}
+  <!-- Include Bootstrap CSS link here -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    /* Add any additional custom styles here */
+    table {
+      width: 100%;
+      margin-bottom: 1rem;
+      color: #212529;
+    }
+
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    th {
+      background-color: #f8f9fa;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+    }
+
+    .btn-deactivate {
+      color: #fff;
+      background-color: #dc3545;
+      border-color: #dc3545;
+    }
+
+    .btn-activate {
+      color: #fff;
+      background-color: #28a745;
+      border-color: #28a745;
+    }
+  </style>
+{% endblock style %}
+
+{% block body %}
+  <!-- templates/delivery_boys_list.html -->
+  <div class="container mt-4">
+    <h1>Delivery Boys List</h1>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Contact Number</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for delivery_boy in delivery_boys %}
+          <tr>
+            <td>{{ delivery_boy.user.get_full_name }}</td>
+            <td>{{ delivery_boy.contact_number }}</td>
+            {% if delivery_boy.user.is_active %}
+            <td>Active</td>
+            {% else %}
+            <td>Deactive</td>
+            {% endif %}
+            <td>
+              {% if delivery_boy.user.is_active %}
+                <a href="{% url 'deactivate_delivery_boy' delivery_boy.id %}" class="btn btn-deactivate">Deactivate</a>
+              {% else %}
+                <a href="{% url 'activate_delivery_boy' delivery_boy.id %}" class="btn btn-activate">Activate</a>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Include Bootstrap JS and Popper.js scripts here -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock body %}

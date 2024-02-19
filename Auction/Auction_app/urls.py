@@ -27,7 +27,10 @@ urlpatterns = [
     path('approved_product/<int:product_id>/',views.approved_product,name='approved_product'),
     path('reject_product/<int:product_id>/', views.reject_product, name='reject_product'),
     path('second_winner/', views.second_winner, name='second_winner'),
-    
+     path('delivery_boys_list/', views.delivery_boys_list, name='delivery_boys_list'),
+     path('activate_delivery_boy/<int:delivery_boy_id>/', views.activate_delivery_boy, name='activate_delivery_boy'),
+    path('deactivate_delivery_boy/<int:delivery_boy_id>/', views.deactivate_delivery_boy, name='deactivate_delivery_boy'),
+    path('register_delivery_boy/', views.register_delivery_boy, name='register_delivery_boy'),
       
     
 
@@ -44,6 +47,7 @@ urlpatterns = [
     path('checkout/', views.checkout, name='checkout'),
     path('paymenthandler/', views.paymenthandler, name='paymenthandler'),
     path('orderdetails',views.orderdetails,name='orderdetails'),
+    path('download_invoice/<str:order_id>/', views.download_invoice, name='download_invoice'),
     
     
     #seller side
