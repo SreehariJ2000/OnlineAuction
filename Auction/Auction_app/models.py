@@ -104,7 +104,6 @@ class UserPayment(models.Model):
     
 
 
-
 class DeliveryBoy(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     contact_number = models.CharField(max_length=15)
@@ -113,9 +112,12 @@ class DeliveryBoy(models.Model):
     registration_number = models.CharField(max_length=20)
     delivery_zones = models.TextField()
     availability_timings = models.CharField(max_length=100)
+    city = models.CharField(max_length=20)
+    state = models.CharField(max_length=20)
 
     def __str__(self):
         return self.user.first_name  # or any other field you want to display
+
 
 
 from django.utils import timezone

@@ -1,8 +1,17 @@
+
 {% extends "admin/adminnav.html" %}
 
 {% block style %}
 
 <style>
+
+    .error {
+        color: red;
+    }
+
+    .success {
+        color: green;
+    }
 
     /* .bodyy {
         font-family: Arial, sans-serif;
@@ -95,12 +104,30 @@
     .styled-link::after {
         content: '\00a0 \2192'; /* Right arrow Unicode */
     }
+    
+        .error {
+            color: red;
+        }
+    
+        .success {
+            color: green;
+        }
+  
+    
 </style>
 {% endblock style %}
 
 {% block body %}
 
 <h1>Add Delivery Boys</h1>
+
+{% if messages %}
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>{{ messages.0 }}</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+{% endif %}
+
 
 <!-- Display a button to trigger the file input -->
 <form method="post" enctype="multipart/form-data">
@@ -109,63 +136,127 @@
     <button type="submit">Add Delivery Boys</button>
 </form>  <br><br>
 
+
 <div class="bodyy">
     <div class="container">
         <div class="colo">
             <h2 class="font-effect-fire">Add Delivery Boy</h2>
         </div>
-        <form action="{% url 'register_delivery_boy' %}" method="post">
+        <form action="{% url 'register_delivery_boy' %}" method="post" id="deliveryBoyForm">
             {% csrf_token %}
             <div class="form-group">
                 <label for="firstname">First Name:</label>
                 <input type="text" id="firstname" name="first_name" placeholder="Enter your first name" required>
+                <span id="firstnameError" class="error"></span>
             </div>
             <div class="form-group">
                 <label for="lastname">Last Name:</label>
                 <input type="text" id="lastname" name="last_name" placeholder="Enter your last name" required>
+                <span id="lastnameError" class="error"></span>
             </div>
             <div class="form-group">
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+                <span id="emailError" class="error"></span>
             </div>
-            <!-- <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" placeholder="Enter your password" required>
-            </div> -->
             <div class="form-group">
                 <label for="contactno">Contact No:</label>
                 <input type="text" id="contactno" name="contact_no" placeholder="Enter your contact number" required>
+                <span id="contactnoError" class="error"></span>
             </div>
             <div class="form-group">
                 <label for="address">Address:</label>
                 <input type="text" id="address" name="address" placeholder="Enter your address" required>
+                <span id="addressError" class="error"></span>
             </div>
             <div class="form-group">
                 <label for="vehicle">Vehicle Type:</label>
                 <input type="text" id="vehicle" name="vehicle_type" placeholder="Enter your vehicle type" required>
+                <span id="vehicleError" class="error"></span>
             </div>
             <div class="form-group">
                 <label for="vehiclereg">Vehicle Registration No:</label>
                 <input type="text" id="vehiclereg" name="registration" placeholder="Enter your vehicle registration number" required>
+                <span id="vehicleregError" class="error"></span>
             </div>
-            <div class="form-group">
-                <label for="deliveryzones">Delivery Zones:</label>
-                <input type="text" id="deliveryzones" name="delivery_zones" placeholder="Enter delivery zones" required>
-            </div>
-            <div class="form-group">
-                <label for="availability">Availability Timing:</label>
-                <input type="text" id="availability" name="availability_timings" placeholder="Enter availability timing" required>
-            </div>
-            <center><button type="submit">Register</button></center>
-        </form><br>
-        <center><p>OR</p></center> 
-        <center>
+            
            
-        </center> 
+            <center><button type="submit">Register</button></center>
+        </form>
+
+        <script>
+            function validateFirstName() {
+                const firstNameInput = document.getElementById('firstname');
+                const firstNameError = document.getElementById('firstnameError');
+                const firstNamePattern = /^[a-zA-Z]+$/;
+
+                if (!firstNamePattern.test(firstNameInput.value)) {
+                    firstNameError.textContent = 'First name must contain only letters.';
+                    firstNameInput.classList.remove('success');
+                    firstNameInput.classList.add('error');
+                } else {
+                    clearErrorAndSuccess(firstNameError, firstNameInput);
+                }
+            }
+
+            function validateLastName() {
+                const lastNameInput = document.getElementById('lastname');
+                const lastNameError = document.getElementById('lastnameError');
+                const lastNamePattern = /^[a-zA-Z]+$/;
+
+                if (!lastNamePattern.test(lastNameInput.value)) {
+                    lastNameError.textContent = 'Last name must contain only letters.';
+                    lastNameInput.classList.remove('success');
+                    lastNameInput.classList.add('error');
+                } else {
+                    clearErrorAndSuccess(lastNameError, lastNameInput);
+                }
+            }
+
+            function validateEmail() {
+                const emailInput = document.getElementById('email');
+                const emailError = document.getElementById('emailError');
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                if (!emailPattern.test(emailInput.value)) {
+                    emailError.textContent = 'Enter a valid email address.';
+                    emailInput.classList.remove('success');
+                    emailInput.classList.add('error');
+                } else {
+                    clearErrorAndSuccess(emailError, emailInput);
+                }
+            }
+
+
+            function validateContactNumber() {
+                const contactNumberInput = document.getElementById('contactno');
+                const contactNumberError = document.getElementById('contactnoError');
+                const contactNumberPattern = /^[0-9]+$/;
+        
+                if (!contactNumberPattern.test(contactNumberInput.value)) {
+                    contactNumberError.textContent = 'Contact number must contain only digits.';
+                    contactNumberInput.classList.remove('success');
+                    contactNumberInput.classList.add('error');
+                } else {
+                    clearErrorAndSuccess(contactNumberError, contactNumberInput);
+                }
+            }
+
+            function clearErrorAndSuccess(errorElement, inputElement) {
+                errorElement.textContent = '';
+                inputElement.classList.remove('error');
+                inputElement.classList.add('success');
+            }
+
+            document.getElementById('firstname').addEventListener('input', validateFirstName);
+            document.getElementById('lastname').addEventListener('input', validateLastName);
+            document.getElementById('email').addEventListener('input', validateEmail);
+            document.getElementById('contactno').addEventListener('input', validateContactNumber);
+
+            // Add similar event listeners for other form fields...
+        </script>
     </div>
 </div>
-
-
 
 
 

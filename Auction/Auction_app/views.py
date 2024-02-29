@@ -975,6 +975,8 @@ def add_delivery_boys(request):
                 registration_number = row['Registration Number']
                 delivery_zones = row['Delivery Zones']
                 availability_timings = row['Availability Timings']
+                city=row['City']
+                state=row['State']
 
                 delivery_boy = DeliveryBoy.objects.create(
                     user=user,
@@ -983,7 +985,9 @@ def add_delivery_boys(request):
                     vehicle_type=vehicle_type,
                     registration_number=registration_number,
                     delivery_zones=delivery_zones,
-                    availability_timings=availability_timings
+                    availability_timings=availability_timings,
+                    city=city,
+                    state=state
                 )
 
                 # Send an email to the delivery boy with their password
@@ -994,19 +998,23 @@ def add_delivery_boys(request):
                 })
                 to_email = [row['Email']]
 
+                
+
                 # Use a thread to send the email asynchronously
                 email_thread = threading.Thread(target=sendmail_in_thread, args=(subject, html_message, to_email))
                 email_thread.start()
-
-                # Notify the user that delivery boys were added successfully
                 messages.success(request, 'Delivery boys added successfully.')
+                
+           
 
         except Exception as e:
             messages.error(request, f'Error processing the Excel sheet: {e}')
 
-    return render(request, 'admin/add_delivery_boys.html')
+    
+    return render(request, 'admin/add_delivery_boys.html',{})
 
-
+@never_cache
+@login_required(login_url="/auth_app/handlelogin/")
 def deliveryboydashboard(request):
     return render(request,'Delivery/deliverydashboard.html')
 
@@ -1029,7 +1037,7 @@ def Change_password(request):
             update_session_auth_hash(request, user)
 
             messages.success(request, 'Password changed successfully.')
-            return redirect('ppppppppppp')
+            return redirect('handlelogin')
         else:
             messages.error(request, 'Passwords do not match.')
 
@@ -1105,8 +1113,8 @@ def register_delivery_boy(request):
         address = request.POST.get('address')
         vehicle_type = request.POST.get('vehicle_type')
         registration_number = request.POST.get('registration')
-        delivery_zones = request.POST.get('delivery_zones')
-        availability_timings = request.POST.get('availability_timings')
+        # delivery_zones = request.POST.get('delivery_zones')
+        # availability_timings = request.POST.get('availability_timings')
 
         random_password = get_user_model().objects.make_random_password()
 
@@ -1128,8 +1136,8 @@ def register_delivery_boy(request):
                 address=address,
                 vehicle_type=vehicle_type,
                 registration_number=registration_number,
-                delivery_zones=delivery_zones,
-                availability_timings=availability_timings
+                delivery_zones="kerala",
+                availability_timings="8.00 to 10"
             )
             
 
@@ -1146,9 +1154,8 @@ def register_delivery_boy(request):
             messages.success(request, 'Delivery boys added successfully.')
 
         except IntegrityError:
-            # Handle any IntegrityError
-            # For example, you can redirect the user to a different page or display an error message
-            messages.success(request, 'Delivery boys added not successfully.')
+            
+            messages.success(request, '')
 
     # Render the registration page template
     return render(request, 'admin/add_delivery_boys.html')

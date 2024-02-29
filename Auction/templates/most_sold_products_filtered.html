@@ -6,7 +6,7 @@
 {% endblock style %}
 
 {% block body %}
-    <h2>Most Sold Products (Filtered)</h2>
+    <h2>Monthly  Details</h2>
 
     <form method="get" action="{% url 'most_sold_products_filtered' %}">
         <label for="month">Filter by Month:</label>
@@ -19,7 +19,7 @@
         <thead>
             <tr>
                 <th scope="col">Product Name</th>
-                <th scope="col">Total Sales Amount</th>
+                <th scope="col"> Sales Amount</th>
             </tr>
         </thead>
         <tbody>

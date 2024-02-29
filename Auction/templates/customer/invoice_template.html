@@ -51,10 +51,11 @@
         
             <!-- Column 2 -->
             <div class="column">
-              <h2>Address</h2>
+              <h2>Product name</h2>
               <p>  {% for product_name in product_names %}
                 <h1> <li>{{ product_name }}</li> </h1>
                {% endfor %}
+               <h2>Address</h2>
                {% for order_detail in order_details %}
                {% for address in order_detail.addresses %}
                          <div class="address-card">
