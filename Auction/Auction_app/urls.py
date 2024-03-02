@@ -48,6 +48,8 @@ urlpatterns = [
     path('paymenthandler/', views.paymenthandler, name='paymenthandler'),
     path('orderdetails',views.orderdetails,name='orderdetails'),
     path('download_invoice/<str:order_id>/', views.download_invoice, name='download_invoice'),
+    path('vendor_info/<int:product_id>/', views.vendor_info, name='vendor_info'),
+    path('submit_review/<int:seller_id>/', views.submit_review, name='submit_review'),
     
     
     #seller side

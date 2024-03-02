@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block style %}
+<style>
+    .read-more {
+        color: blue; /* Set the desired color */
+        cursor: pointer;
+    }   
+
+
+    .col-md-6 {
+        /* Add any styles for the outer div if needed */
+    }
+
+    .inner-div {
+        margin: 10px;  /* Adjust the margin as per your requirement */
+        border: 1px solid #ccc;  /* Add a border with a color of your choice */
+        padding: 10px;  /* Optional: Add padding for better spacing */
+    }
+</style>
+{% endblock style %}
+
+{% block body %}
+<!-- vendor_info.html in myapp/templates/customer -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            {% for seller_product in seller_products %}
+                <div class="card mb-4">
+                    <h2>{{ seller_product.product_name }}</h2>
+                    <img src="{{ seller_product.image1.url }}" alt="Product Image" class="img-fluid" style="max-width: 150px; max-height: 200px;">
+                    <p>Current Price: {{ seller_product.current_price }}</p>
+                    <p>Highest Price: {{ seller_product.current_highest_bid }}</p>
+
+                    <!-- Truncated description with "Read More" -->
+                    <p>{{ seller_product.about_product|truncatechars:200 }} <span class="read-more" data-toggle="collapse" data-target="#description{{ seller_product.id }}">Read More</span></p>
+
+                    <!-- Collapsible full description -->
+                    <div id="description{{ seller_product.id }}" class="collapse">
+                        {{ seller_product.about_product }}
+                    </div>
+
+                    <!-- Add other product details as needed -->
+                </div>
+            {% endfor %}
+        </div>
+        <div class="col-md-6">
+
+            <div id="reviewsContainer">      
+            {% for review in seller_reviews %}
+            <div class="review">
+                <p>
+                    Rating:
+                    <span id="stars{{ review.id }}"></span>
+                </p>
+                <p>Score: {{ review.sentiment_rating }}</p>
+                <p>{{ review.review_text }}</p>
+                <!-- Display other review details as needed -->
+            </div>
+        </div>
+            <script>
+                // JavaScript code to calculate and display stars
+                var starsContainer = document.getElementById('stars{{ review.id }}');
+                
+                // Ensure the element is found before proceeding
+                if (starsContainer) {
+                    console.log('Element found:', starsContainer);
+                    
+                    var sentimentRating = {{ review.sentiment_rating|default:0 }};
+                    console.log('Sentiment Rating:', sentimentRating);
+                    
+                    var stars = calculateStars(sentimentRating);
+                    console.log('Stars:', stars);
+                    
+                    for (var i = 0; i < 5; i++) {
+                        var star = document.createElement('i');
+                        star.className = 'fas fa-star';
+                        
+                        // Color logic based on the number of stars
+                        if (i < stars) {
+                            if (stars === 5 || stars === 4) {
+                                star.style.color = 'green';
+                            } else if (stars === 3) {
+                                star.style.color = 'yellow';
+                            } else {
+                                star.style.color = 'red';
+                            }
+                        }
+                        
+                        starsContainer.appendChild(star);
+                    }
+                } else {
+                    console.log('Element not found for review ID:', {{ review.id }});
+                }
+        
+                // Function to calculate stars based on sentiment rating
+                function calculateStars(sentimentRating) {
+                    if (sentimentRating >= 0.8) {
+                        return 5;
+                    } else if (0.6 <= sentimentRating && sentimentRating < 0.8) {
+                        return 4;
+                    } else if (0.4 <= sentimentRating && sentimentRating < 0.6) {
+                        return 3;
+                    } else if (-0.6 <= sentimentRating && sentimentRating < 0.4) {
+                        return 2;
+                    } else if (sentimentRating < -0.6) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                }
+
+                
+           
+            </script>
+
+
+            
+        {% endfor %}
+
+        
+            
+        </div>
+    </div>
+</div>
+
+<script>
+    
+</script>
+
+
+<script src="https://kit.fontawesome.com/0c1a238acd.js" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+
+
+{% endblock body %}

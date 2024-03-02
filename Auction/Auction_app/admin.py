@@ -13,3 +13,4 @@ admin.site.register(RejectedProduct),
 admin.site.register(DeliveryBoy),
 admin.site.register(Order),
 admin.site.register(UserPayment),
+admin.site.register(Review)

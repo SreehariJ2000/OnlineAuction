@@ -705,7 +705,7 @@ razorpay_client = razorpay.Client(
 
 def checkout(request):
     # Fetch the user's cart item 
-    user_cart = Cart.objects.get(user=request.user)
+    user_cart = Cart.objects.get(user=request.user,is_paid=False)
     cart_items = CartItems.objects.filter(cart=user_cart)
     total_amount = sum(item.product.current_highest_bid for item in cart_items)
 
@@ -777,7 +777,7 @@ def paymenthandler(request):
             }
 
 
-            user_cart = Cart.objects.get(user=request.user)
+            user_cart = Cart.objects.get(user=request.user,is_paid=False)
             cart_items = CartItems.objects.filter(cart=user_cart)
             total_amount = sum(item.product.current_highest_bid for item in cart_items)
             print("Total Amount ffffffffffffff",total_amount)
@@ -883,8 +883,10 @@ def orderdetails(request):
         for cart_item in cart_items:
             product = cart_item.product
             product_details.append({
+                'product_id':product.pk,
+                'sellor_id':product.seller.pk,
                 'product_name': product.product_name,
-                'image_url': product.image1.url,  # Change this to the appropriate field for the image
+                'image_url': product.image1.url,  
                 'amount': order.amount,
                 'order_id': order.order_id_data,
                 'status': order.status,
@@ -1159,3 +1161,27 @@ def register_delivery_boy(request):
 
     # Render the registration page template
     return render(request, 'admin/add_delivery_boys.html')
+
+
+
+def vendor_info(request, product_id):
+    print("ffffffffffffffffffffff")
+    product = get_object_or_404(AddProduct, pk=product_id)
+    seller_id = product.seller_id
+    seller_products = AddProduct.objects.filter(seller_id=seller_id)
+    seller_reviews=Review.objects.filter(seller_id=seller_id)
+    return render(request, 'customer/vendor_info.html', {'seller_products': seller_products,'seller_reviews':seller_reviews})
+
+
+
+
+
+@login_required
+def submit_review(request, seller_id):
+    print(seller_id,'****************888')
+    if request.method == 'POST':
+        seller_profile = get_object_or_404(SellerProfile, pk=seller_id)
+        review_text = request.POST.get('review_text')
+        reviewer = request.user
+        Review.objects.create(seller=seller_profile, reviewer=reviewer, review_text=review_text)
+        return redirect('orderdetails')

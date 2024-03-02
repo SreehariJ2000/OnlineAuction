@@ -130,3 +130,23 @@ class Order(models.Model):
     order_id_data = models.TextField(default="empty")
     payment_id_data = models.TextField(default="empty")
     status = models.CharField(max_length=100, default="pending")
+
+
+
+
+from textblob import TextBlob
+
+class Review(models.Model):
+    seller = models.ForeignKey(SellerProfile, on_delete=models.CASCADE)
+    reviewer = models.ForeignKey(User, on_delete=models.CASCADE)
+    review_text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    sentiment_rating = models.FloatField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        # Calculate sentiment rating using textblob
+        blob = TextBlob(self.review_text)
+        self.sentiment_rating = blob.sentiment.polarity
+        super().save(*args, **kwargs)
+
+  

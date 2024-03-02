@@ -84,6 +84,20 @@
  .table {
             width: 100%; /* Make the table width 100% of the container */
           }
+
+
+  .button {
+            background-color: #4CAF50; /* Green color */
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+          }
           
       
     
@@ -128,6 +142,8 @@
             <!-- Div 2: Product Information -->
             <div class="product-info">
                 <h2>Product Name  {{ product.product_name }}</h2>
+
+                <h2><a href="{% url 'vendor_info' product_id=product.id %}" class="button">Vendor Info</a></h2>
                 
                 <p style="color: blue; font-weight: bold; font-size: 16px; margin-top: 50px;" > Base Price: {{ product.current_price }}</p>
                 

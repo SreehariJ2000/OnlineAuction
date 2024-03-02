@@ -115,13 +115,43 @@
         {% for product_detail in order_detail.product_details %}
         
         <button id="download-invoice-btn" data-order-id="{{ product_detail.order_id }}">Download Invoice</button>
+        <button type="button" class="btn btn-primary" onclick="openReviewModal('{{ product_detail.sellor_id|default:"" }}')">
+          {{ product_detail.sellor_id }}
+      </button>
+      
+      
 
-        
+      <div class="modal fade" id="addReviewModal" tabindex="-1" role="dialog" aria-labelledby="addReviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addReviewModalLabel">Add Review</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Form for submitting reviews -->
+                    <form method="post" action="{% url 'submit_review' seller_id=0 %}" id="reviewForm">
+                        {% csrf_token %}
+                        <!-- Add your review form fields here -->
+                        <textarea name="review_text" required></textarea>
+                        <input type="hidden" name="seller_id" id="modalSellerId" value="">
+                        <input type="submit" value="Submit Review">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
         {% endfor %}
       </div>
       </div>
     {% endfor %}
   </div>
+
+
 
   <script>
     document.querySelectorAll('#download-invoice-btn').forEach(function(btn) {
@@ -138,8 +168,42 @@
         window.location.href = url;
       });
     });
+
+
+ // Contents of your script.js
+function openReviewModal(sellerId) {
+  if (sellerId !== undefined) {
+      // Set the seller ID in the hidden input field
+      $('#modalSellerId').val(sellerId);
+
+      // Update the form action URL with the correct seller ID
+      var formAction = '{% url "submit_review" seller_id=0 %}'.replace('0', sellerId);
+      $('#reviewForm').attr('action', formAction);
+
+      // Trigger the modal to show
+      $('#addReviewModal').modal('show');
+  } else {
+      console.error('Seller ID is undefined');
+  }
+}
+
   </script>
-  
+  <!-- Add this script to pass the seller's ID to the modal -->
+ <!-- Inspect the value in the browser console -->
+<script>
+ 
+</script>
+
+
+<!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Include Bootstrap JavaScript -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+
+
+
 
 {% endblock body  %}
 
