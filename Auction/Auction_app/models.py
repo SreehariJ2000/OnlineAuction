@@ -6,7 +6,37 @@ from auth_app.models import *
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
+from django.db.models import Q
 
+
+
+# Create your models here.
+
+class ThreadManager(models.Manager):
+    def by_user(self, **kwargs):
+        user = kwargs.get('user')
+        lookup = Q(first_person=user) | Q(second_person=user)
+        qs = self.get_queryset().filter(lookup).distinct()
+        return qs
+
+
+class Thread(models.Model):
+    first_person = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='thread_first_person')
+    second_person = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True,
+                                     related_name='thread_second_person')
+    updated = models.DateTimeField(auto_now=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    objects = ThreadManager()
+    class Meta:
+        unique_together = ['first_person', 'second_person']
+
+
+class ChatMessage(models.Model):
+    thread = models.ForeignKey(Thread, null=True, blank=True, on_delete=models.CASCADE, related_name='chatmessage_thread')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
 
 
 class Category(models.Model):
@@ -150,3 +180,28 @@ class Review(models.Model):
         super().save(*args, **kwargs)
 
   
+
+
+class BlogPost(models.Model):
+    seller = models.ForeignKey(User, on_delete=models.CASCADE)
+    heading = models.CharField(max_length=255)
+    description = models.TextField()
+    image = models.ImageField(upload_to='blog_images/', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    views = models.IntegerField(default=0)
+
+
+    def __str__(self):
+        return self.heading
+    
+
+
+
+class Like(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    blog_post = models.ForeignKey(BlogPost, on_delete=models.CASCADE)
+
+
+class TotalView(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    blog = models.ForeignKey(BlogPost, on_delete=models.CASCADE)

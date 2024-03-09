@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'Auction_app',
     'auth_app',
     'ckeditor',
-    'chartjs'
+    'chartjs',
+    'channels'
 ]
 
 MIDDLEWARE = [
@@ -73,7 +74,11 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'Auction.wsgi.application'
+
+ASGI_APPLICATION = "Auction.asgi.application"
+# settings.py
+
+
 
 
 # Database
@@ -163,3 +168,14 @@ LOGIN_URL='/handlelogin/'
 
 RAZOR_KEY_ID = 'rzp_test_jtj7qooR9ahhtO'
 RAZOR_KEY_SECRET = 'GWTXkw8I26NQWO43B0Coce1k'
+
+
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        # 'CONFIG': {
+        #     'hosts': [('127.0.0.1', 6379)],
+        # }
+    }
+}

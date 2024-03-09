@@ -50,6 +50,9 @@ urlpatterns = [
     path('download_invoice/<str:order_id>/', views.download_invoice, name='download_invoice'),
     path('vendor_info/<int:product_id>/', views.vendor_info, name='vendor_info'),
     path('submit_review/<int:seller_id>/', views.submit_review, name='submit_review'),
+    path('chat/', views.chatwith, name='chat'),
+    path('blog_post_list/', views.blog_post_list, name='blog_post_list'),
+    path('blog/<int:blog_post_id>/', views.blog_post_detail, name='blog_post_detail'),
     
     
     #seller side
@@ -61,6 +64,7 @@ urlpatterns = [
     path('start_reauction/', views.start_reauction_view, name='start_reauction'),
     path('most_sold_products_chart/', MostSoldProductsChartView.as_view(), name='most_sold_products_chart'),
     path('most_sold_products_filtered/', MostSoldProductsFilteredView.as_view(), name='most_sold_products_filtered'),
+    path('add/', views.add_blog_post, name='add_blog_post'),
 
 
 

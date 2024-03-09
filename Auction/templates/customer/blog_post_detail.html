@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<div style="padding: 10px;">
+  
+  <div class="container">
+    <div class="row">
+      
+      <div class="col-md-4">
+        <p>Likes: {{ blog_post.likes_count }}</p>
+        <p>Views: {{ blog_post.views }}</p>
+    
+        <!-- Like button -->
+        <form method="post" action="{% url 'blog_post_detail' blog_post.id %}" id="likeForm">
+            {% csrf_token %}
+            <button type="submit" name="like_button" id="likeButton">
+              {% if var %}
+              <i class="far fa-heart"></i> Like
+              {% else %}
+              <i class="fas fa-heart text-danger"></i> Liked
+               
+              {% endif %}
+            </button>
+          </form>
+      </div>
+
+      <!-- Column 2 with width 8 -->
+      <div class="col-md-8">
+        <h2>{{ blog_post.heading }}</h2>
+        <img src="{{ blog_post.image.url }}" alt="{{ blog_post.heading }}" style="max-width: 500px;">
+        <p>{{ blog_post.description }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script src="https://kit.fontawesome.com/0c1a238acd.js" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+
+    <!-- Include jQuery (you can download and host it locally or use a CDN) -->
+   
+</div>
+
+
+{% endblock body %}

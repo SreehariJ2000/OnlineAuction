@@ -144,6 +144,7 @@
                 <h2>Product Name  {{ product.product_name }}</h2>
 
                 <h2><a href="{% url 'vendor_info' product_id=product.id %}" class="button">Vendor Info</a></h2>
+                <h2><a href="{% url "chat" %}" class="button">Chatwith sellor</a></h2>
                 
                 <p style="color: blue; font-weight: bold; font-size: 16px; margin-top: 50px;" > Base Price: {{ product.current_price }}</p>
                 

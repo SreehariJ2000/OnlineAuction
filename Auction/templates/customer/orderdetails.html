@@ -9,7 +9,7 @@
   .card-container {
     display: flex;
     flex-direction: column;
-    width: 80%;
+    width: 95%;
     margin: 20px;
 }
 .card {
@@ -66,6 +66,21 @@
 .delivered { background-color: #4CAF50; }
 .cancelled { background-color: #F44336; }
 
+
+#addReviewModal .modal-dialog {
+  width: 80%; /* You can adjust the width as needed */
+  height: 80%; /* You can adjust the height as needed */
+}
+
+#addReviewModal .modal-content {
+  height: 100%; /* Ensure the content takes full height */
+}
+
+#addReviewModal .modal-body {
+  height: 80%; /* Adjust the height of the body as needed */
+  overflow-y: auto; /* Enable vertical scrolling if content exceeds the height */
+}
+
 </style>
 {% endblock style %}
 
@@ -114,9 +129,9 @@
         </div>
         {% for product_detail in order_detail.product_details %}
         
-        <button id="download-invoice-btn" data-order-id="{{ product_detail.order_id }}">Download Invoice</button>
+        <button id="download-invoice-btn" data-order-id="{{ product_detail.order_id }}">Download Invoice</button> &nbsp;&nbsp;&nbsp;
         <button type="button" class="btn btn-primary" onclick="openReviewModal('{{ product_detail.sellor_id|default:"" }}')">
-          {{ product_detail.sellor_id }}
+          Add Rivew on Seller
       </button>
       
       
@@ -135,7 +150,7 @@
                     <form method="post" action="{% url 'submit_review' seller_id=0 %}" id="reviewForm">
                         {% csrf_token %}
                         <!-- Add your review form fields here -->
-                        <textarea name="review_text" required></textarea>
+                        <textarea name="review_text"  rows="4" cols="50" required></textarea>
                         <input type="hidden" name="seller_id" id="modalSellerId" value="">
                         <input type="submit" value="Submit Review">
                     </form>

@@ -80,6 +80,7 @@
 
           <li><a class="nav-link scrollto {% if request.path == '/upcoming-auctions/' %}active{% endif %}" href="{% url "upcoming_auctions" %}">up comming</a></li>
           <li><a class="nav-link scrollto {% if request.path == '/live-auctions/' %}active{% endif %}" href="{% url "live_auctions" %}">live</a></li>
+          <li><a class="nav-link scrollto {% if request.path == '/live-auctions/' %}active{% endif %}" href="{% url "blog_post_list" %}">Blogs</a></li>
           <li class="dropdown"><a href="#"><span>Hello {{user.first_name}}</span> <i class="bi bi-chevron-right"></i></a>
             <ul>
               <li><a href="{% url "update-profile" %}">My profile</a></li>
@@ -87,6 +88,7 @@
               <li><a href="{% url "winner_cart" %}">Mycollections</a></li>
               <li><a href="{% url "auction_history" %}">History</a></li>
               <li><a href="{% url "orderdetails" %}">Order Details</a></li>
+              
               <li><a href="{% url "handlelogout" %}">Log out</a></li>
 
             </ul>

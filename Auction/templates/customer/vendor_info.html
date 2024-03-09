@@ -32,7 +32,7 @@
                 <div class="card mb-4">
                     <h2>{{ seller_product.product_name }}</h2>
                     <img src="{{ seller_product.image1.url }}" alt="Product Image" class="img-fluid" style="max-width: 150px; max-height: 200px;">
-                    <p>Current Price: {{ seller_product.current_price }}</p>
+                    <p>Base Price: {{ seller_product.current_price }}</p>
                     <p>Highest Price: {{ seller_product.current_highest_bid }}</p>
 
                     <!-- Truncated description with "Read More" -->
@@ -48,19 +48,31 @@
             {% endfor %}
         </div>
         <div class="col-md-6">
-
+            <div id="overallReviews">
+                {% with total_reviews=seller_reviews.count %}
+                    
+                    <p><h2>Ratings & Reviews</h2>  Total {{ total_reviews }}  rivews</p>
+                {% endwith %}
+            </div>
             <div id="reviewsContainer">      
             {% for review in seller_reviews %}
-            <div class="review">
+            <div class="review shadow p-3 mb-5 bg-white rounded">
                 <p>
                     Rating:
                     <span id="stars{{ review.id }}"></span>
                 </p>
                 <p>Score: {{ review.sentiment_rating }}</p>
                 <p>{{ review.review_text }}</p>
+                
+                <p style="color: grey;">{{ review.created_at|timesince|default:''|cut:', 0' }} ago</p>
+
+                    
                 <!-- Display other review details as needed -->
             </div>
-        </div>
+            
+            
+            
+       
             <script>
                 // JavaScript code to calculate and display stars
                 var starsContainer = document.getElementById('stars{{ review.id }}');
@@ -121,7 +133,7 @@
             
         {% endfor %}
 
-        
+    </div>
             
         </div>
     </div>

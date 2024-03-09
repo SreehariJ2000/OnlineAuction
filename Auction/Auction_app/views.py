@@ -1163,6 +1163,7 @@ def register_delivery_boy(request):
     return render(request, 'admin/add_delivery_boys.html')
 
 
+from django.db.models import Count
 
 def vendor_info(request, product_id):
     print("ffffffffffffffffffffff")
@@ -1170,7 +1171,8 @@ def vendor_info(request, product_id):
     seller_id = product.seller_id
     seller_products = AddProduct.objects.filter(seller_id=seller_id)
     seller_reviews=Review.objects.filter(seller_id=seller_id)
-    return render(request, 'customer/vendor_info.html', {'seller_products': seller_products,'seller_reviews':seller_reviews})
+    unique_reviewers = seller_reviews.values('reviewer_id').annotate(count=Count('reviewer_id'))
+    return render(request, 'customer/vendor_info.html', {'seller_products': seller_products,'seller_reviews':seller_reviews,'unique_reviewers': unique_reviewers})
 
 
 
@@ -1185,3 +1187,69 @@ def submit_review(request, seller_id):
         reviewer = request.user
         Review.objects.create(seller=seller_profile, reviewer=reviewer, review_text=review_text)
         return redirect('orderdetails')
+
+
+from Auction_app.models import Thread
+def chatwith(request):
+    threads = Thread.objects.by_user(user=request.user).prefetch_related('chatmessage_thread').order_by('timestamp')
+    context = {
+        'Threads': threads
+    }
+    return render(request,'messages.html',context)
+
+
+
+
+from .forms import BlogPostForm
+def add_blog_post(request):
+    if request.method == 'POST':
+        form = BlogPostForm(request.POST, request.FILES)
+        if form.is_valid():
+            blog_post = form.save(commit=False)
+            blog_post.seller = request.user
+            blog_post.save()
+            return redirect('/add')  # Redirect to the blog post list page
+    else:
+        form = BlogPostForm()
+
+    return render(request, 'sellor/add_blog_post.html', {'form': form})
+
+
+
+def blog_post_list(request):
+    blog_posts = BlogPost.objects.all()
+    top_three_posts = BlogPost.objects.order_by('-views')[:3]
+    return render(request, 'customer/blog_post_list.html', {'blog_posts': blog_posts,'top_three_posts':top_three_posts})
+
+
+
+
+
+def blog_post_detail(request, blog_post_id):
+    blog_post = get_object_or_404(BlogPost, id=blog_post_id)
+    user = request.user
+
+    if not TotalView.objects.filter(user=user, blog=blog_post).exists():
+        TotalView.objects.create(user=user, blog=blog_post)
+
+        blog_post.views += 1
+        blog_post.save()
+
+    varr=True
+    if request.method == 'POST':
+        if 'like_button' in request.POST:
+            user = request.user
+            if user.is_authenticated:
+                # Check if the user has already liked the post
+                if not Like.objects.filter(user=user, blog_post=blog_post).exists():
+                    varr=False
+                    # If not, add a new like
+                    Like.objects.create(user=user, blog_post=blog_post)
+                    blog_post.likes_count = blog_post.like_set.count()
+                    blog_post.save()
+                else:
+                    return HttpResponse("You've already liked this post.")
+            else:
+                return HttpResponse("Please log in to like the post.")
+    
+    return render(request, 'customer/blog_post_detail.html', {'blog_post': blog_post,'var':varr})
