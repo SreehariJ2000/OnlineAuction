@@ -1181,12 +1181,19 @@ def vendor_info(request, product_id):
 @login_required
 def submit_review(request, seller_id):
     print(seller_id,'****************888')
+    
     if request.method == 'POST':
+        user=request.user
         seller_profile = get_object_or_404(SellerProfile, pk=seller_id)
-        review_text = request.POST.get('review_text')
-        reviewer = request.user
-        Review.objects.create(seller=seller_profile, reviewer=reviewer, review_text=review_text)
-        return redirect('orderdetails')
+        if not Review.objects.filter(reviewer=user, seller=seller_profile).exists():
+
+             review_text = request.POST.get('review_text')
+             reviewer = request.user
+             Review.objects.create(seller=seller_profile, reviewer=reviewer, review_text=review_text)
+             return redirect('orderdetails')
+        else:
+            messages.success(request,"This is Already reviewed")
+    return redirect('orderdetails')
 
 
 from Auction_app.models import Thread

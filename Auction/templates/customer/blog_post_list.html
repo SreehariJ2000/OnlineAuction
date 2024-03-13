@@ -15,7 +15,7 @@
             <div class="container">
               <div class="row">
                 {% for blog_post in blog_posts %}
-                  <div class="col-md-4 mt-5">
+                  <div class="col-md-4 mt-5 ">
                     <!-- Content for column 1 goes here -->
                     
                     <p class="card-text">
@@ -32,7 +32,7 @@
                     </p>
                   </div>
                   <!-- Column 2 with width 4 -->
-                  <div class="col-md-8">
+                  <div class="col-md-8 mt-5">
                     <!-- Your content for column 2 goes here -->
                     <div class="card border-0">
                       <img src="{{ blog_post.image.url }}" class="card-img-top" alt="{{ blog_post.heading }}" style="max-width: 800px; height: 300px;">
@@ -66,7 +66,7 @@
                       <img src="{{ blog_post.image.url }}" class="card-img-top" alt="{{ blog_post.heading }}" style="max-width: 100%; height: 100px;">
                       <div class="card-body">
                         <h6 class="card-title">{{ blog_post.heading }}</h6>
-                        <p class="card-title" style="color: grey;">{{ blog_post.created_at|timesince }}</p>
+                        <p class="card-title" style="color: grey;">{{ blog_post.created_at|timesince }} ago</p>
 
                         <a href="{% url 'blog_post_detail' blog_post.id %}" class="btn btn-danger">Read more</a>
                       </div>

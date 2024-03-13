@@ -81,6 +81,12 @@
   overflow-y: auto; /* Enable vertical scrolling if content exceeds the height */
 }
 
+/*
+.custom-alert {
+  max-width: 300px;  Adjust the width as needed 
+}
+*/
+
 </style>
 {% endblock style %}
 
@@ -89,7 +95,21 @@
   <h1>Your Orders</h1>
 
 
-
+  {% if messages %}
+  {% for message in messages %}
+      <div class="alert alert-success alert-dismissible fade show custom-alert" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      <script>
+          setTimeout(function() {
+              document.querySelector('.alert').remove();
+          }, 5000); // Five seconds delay
+      </script>
+  {% endfor %}
+{% endif %}
   <div class="card-container">
     {% for order_detail in order_details %}
       <div class="card">
@@ -141,6 +161,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="addReviewModalLabel">Add Review</h5>
+                    
+                
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -154,6 +176,7 @@
                         <input type="hidden" name="seller_id" id="modalSellerId" value="">
                         <input type="submit" value="Submit Review">
                     </form>
+                    
                 </div>
             </div>
         </div>
