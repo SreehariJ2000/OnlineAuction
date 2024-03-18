@@ -1,0 +1,38 @@
+{% extends "admin/adminnav.html" %}
+
+{% block body %}
+
+<div class="container">
+    <h2>Review Status</h2>
+    <form method="get" action="{% url 'review_status' %}">
+        <label><input type="radio" name="sentiment" value="positive"> Positive</label>
+        <label><input type="radio" name="sentiment" value="negative"> Negative</label>
+        <label><input type="radio" name="full" value="full"> Full</label>
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Seller</th>
+                <th>Reviewer</th>
+                <th>Review Text</th>
+                <th>Created At</th>
+                <th>Sentiment Rating</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for review in reviews %}
+            <tr>
+                <td>{{ review.seller.user.first_name }} {{ review.seller.user.last_name }}</td>
+                <td>{{ review.reviewer.username }}</td>
+                <td>{{ review.review_text }}</td>
+                <td>{{ review.created_at|date:"F d, Y h:i A" }}</td>
+                <td>{{ review.sentiment_rating }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

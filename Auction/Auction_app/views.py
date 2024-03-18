@@ -1176,6 +1176,18 @@ def vendor_info(request, product_id):
 
 
 
+def review_status(request):
+    reviews = Review.objects.all()
+    sentiment = request.GET.get('sentiment')
+    if sentiment == 'positive':
+        reviews = reviews.filter(sentiment_rating__gte=0)
+    elif sentiment == 'negative':
+        reviews = reviews.filter(sentiment_rating__lt=0)
+    elif sentiment =='full':
+         reviews = Review.objects.all()
+    return render(request, 'admin/review_status.html', {'reviews': reviews})
+
+
 
 
 @login_required

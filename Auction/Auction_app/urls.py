@@ -53,6 +53,7 @@ urlpatterns = [
     path('chat/', views.chatwith, name='chat'),
     path('blog_post_list/', views.blog_post_list, name='blog_post_list'),
     path('blog/<int:blog_post_id>/', views.blog_post_detail, name='blog_post_detail'),
+    path('review-status/', views.review_status, name='review_status'),
     
     
     #seller side
