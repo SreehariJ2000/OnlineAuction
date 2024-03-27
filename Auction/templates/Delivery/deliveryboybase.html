@@ -16,10 +16,10 @@
           top: 0;
           left: 0;
           right: 0;
-          background-color: #007bff; /* Blue background color */
+          background-color: #002d60; /* Vibrant orange background color */
           transition: background-color 0.3s ease; /* Add animation to the background color */
           z-index: 1000; /* Ensure it's above other elements */
-        }
+      }
     
         .navbar.navbar-scrolled {
           background-color: #0056b3; /* Color when scrolled */
@@ -102,12 +102,7 @@
          
     {% block style %}
     
-    body {
-        background-image: url('{% static 'assets/img/del.jpg' %}');
-        background-size: 75% auto; /* Adjust the values based on your preference */
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-    }
+    
     
     {% endblock style %}
         
@@ -118,7 +113,7 @@
     <title> {% block title %} {% endblock title %}</title>
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary"> <!-- Change classes here -->
+    <nav class="navbar navbar-expand-lg navbar-dark"> <!-- Change classes here -->
         <div class="container-fluid">
           <a class="navbar-brand" href="#"><i class="fas fa-home"></i>Antique Treasure</a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Layout</title>
+<style>
+  .card {
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  .card-columns {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .card-column {
+    width: calc(25% - 20px); /* Adjust width as needed */
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background-color: #f9f9f9; /* Optional: Add background color */
+  }
+
+  /* Optional: Add styles for better appearance */
+  .card-column h2 {
+    margin-top: 0;
+  }
+
+  .card-column p {
+    margin: 10px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="card-content">
+    <h2>Card Title</h2>
+    <p>This is the content of the card.</p>
+    <div class="card-columns">
+      <div class="card-column">
+        <h3>Column 1</h3>
+        <p>This is the content of column 1.</p>
+      </div>
+      <div class="card-column">
+        <h3>Column 2</h3>
+        <p>This is the content of column 2.</p>
+      </div>
+      <div class="card-column">
+        <h3>Column 3</h3>
+        <p>This is the content of column 3.</p>
+      </div>
+      <div class="card-column">
+        <h3>Column 4</h3>
+        <p>This is the content of column 4.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

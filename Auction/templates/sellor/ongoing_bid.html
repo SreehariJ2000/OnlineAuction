@@ -1,0 +1,123 @@
+{% extends "sellor/sellor_base.html" %}
+
+{% block style %}
+<style>
+  .custom-div {
+    height: 700px;
+    background-color: #f0f0f0;
+  }
+
+  /* Customize table styles */
+  .table {
+    margin-top: 100px; /* Updated margin top to 400px */
+    font-size: 16px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .table th,
+  .table td {
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  /* Add animation to the table rows */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  /* Add gradient color to table head */
+  .thead-dark {
+    background: linear-gradient(to right, #4f74ff, #8e9fff);
+    color: #fff; /* Set text color to white */
+  }
+
+  /* Another color for th */
+  .th-another-color {
+    background-color: #ffcc66; /* Choose your preferred color */
+    color: #333; /* Set text color to a readable color */
+  }
+</style>
+{% endblock style %}
+
+{% block body %}
+
+<div class="container mt-5">
+  <table class="table table-bordered table-hover">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col" class="th-another-color">Product Name</th>
+        <th scope="col" class="th-another-color">Start Time</th>
+        <th scope="col" class="th-another-color">End Time</th>
+        <th scope="col" class="th-another-color">Time Left</th>
+        <th scope="col" class="th-another-color">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for product in live_auctions %}
+        <tr class="fade-in">
+          <td>{{ product.product_name }}</td>
+          <td>{{ product.auction_start_datetime }}</td>
+          <td>{{ product.auction_end_datetime }}</td>
+          <td>
+            <span id="timer_{{ product.id }}"></span>
+          </td>
+          <td>
+            <a href="{% url 'progress_status' product.id %}" class="btn btn-danger btn-sm">view</a>
+          </td>
+        </tr>
+
+        <script>
+          var auctionEndDatetime_{{ product.id }} = new Date("{{ product.auction_end_datetime|date:'Y-m-d H:i:s' }}");
+
+          // Function to update the timer display
+          function updateTimer_{{ product.id }}() {
+            var now = new Date();
+            var timeRemaining = auctionEndDatetime_{{ product.id }} - now;
+
+            // Check if the auction has ended
+            if (timeRemaining <= 0) {
+              // Stop further intervals
+              clearInterval(intervalId_{{ product.id }});
+              return;
+            }
+
+            // Calculate days, hours, minutes, and seconds
+            var days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+            // Display the timer
+            document.getElementById("timer_{{ product.id }}").innerHTML =
+              days + "d " + hours + "h " + minutes + "m " + seconds + "s";
+          }
+
+          // Initial call to updateTimer when the page loads
+          updateTimer_{{ product.id }}();
+
+          // Call updateTimer every second and stop if the auction has ended
+          var intervalId_{{ product.id }} = setInterval(function() {
+            updateTimer_{{ product.id }}();
+            var now = new Date();
+            if (now >= auctionEndDatetime_{{ product.id }}) {
+              clearInterval(intervalId_{{ product.id }});
+            }
+          }, 1000);
+        </script>
+
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock body %}

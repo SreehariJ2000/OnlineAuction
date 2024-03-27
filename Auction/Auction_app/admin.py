@@ -24,6 +24,7 @@ admin.site.register(ChatMessage),
 admin.site.register(BlogPost),
 admin.site.register(Like),
 admin.site.register(TotalView),
+admin.site.register(DeliveryAssignment),
 
 
 class ChatMessage(admin.TabularInline):

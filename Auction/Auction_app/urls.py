@@ -54,6 +54,7 @@ urlpatterns = [
     path('blog_post_list/', views.blog_post_list, name='blog_post_list'),
     path('blog/<int:blog_post_id>/', views.blog_post_detail, name='blog_post_detail'),
     path('review-status/', views.review_status, name='review_status'),
+    path('trackmyorder/', views.trackmyorder, name='trackmyorder'),
     
     
     #seller side
@@ -66,13 +67,19 @@ urlpatterns = [
     path('most_sold_products_chart/', MostSoldProductsChartView.as_view(), name='most_sold_products_chart'),
     path('most_sold_products_filtered/', MostSoldProductsFilteredView.as_view(), name='most_sold_products_filtered'),
     path('add/', views.add_blog_post, name='add_blog_post'),
+    path('ship_order/',views.ship_order,name='ship_order'),
+    path('mark-shipped/<int:assignment_id>/', views.mark_as_shipped, name='mark_shipped'),
+   
 
+ 
 
 
 
     #add delivery boy
     path('add_delivery_boys/',views.add_delivery_boys,name="deliveryboy"),
     path('Change_password/', views.Change_password, name='Change_password'),
+    path('new_orders/',views.new_orders,name='new_orders'),
+    path('out_for_delivery/',views.out_for_delivery,name='out_for_delivery')
 ]
 
 

@@ -422,6 +422,7 @@ def send_winner_email(product, highest_bid):
 def addtocart(request):
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
+        request.session['product_id'] = product_id
         product = get_object_or_404(AddProduct, id=product_id)
 
         highest_bid = Bid.objects.filter(product=product).order_by('-bid_amount').first()
@@ -811,7 +812,32 @@ def paymenthandler(request):
                     payment_id_data=payment_id,
                     status="completed"  # Set the status to completed or any other desired value
                 )
-                #amount = 700000  
+
+                product_id = request.session.get('product_id')
+                product = get_object_or_404(AddProduct, id=product_id)
+                print("ooo")
+                
+                
+               
+                user_address = Address.objects.get(user=request.user) 
+                user=request.user
+                print("ppp")
+                print("User Address:", user_address)
+                delivery_boys = DeliveryBoy.objects.filter(pincode=user_address.pincode)
+                print("qqq")
+                print("Delivery Boys:", delivery_boys)
+                selected_delivery_boy = delivery_boys.first()  
+                print("rrr")
+                print("Selected Delivery Boy:", selected_delivery_boy)
+                delivery_assignment = DeliveryAssignment.objects.create(
+                   user=user,
+                   delivery_boy=selected_delivery_boy,
+                   order=order_instance,
+                    product=product
+                    )
+
+
+
                 try:
                     cart.is_paid = True
                     cart.save()                  
@@ -953,9 +979,11 @@ def sendmail_in_thread(subject, html_message, to_email):
 def add_delivery_boys(request):
     if request.method == 'POST' and request.FILES['xl_sheet']:
         xl_sheet = request.FILES['xl_sheet']
+        delivery_added_successfully = False
 
         try:
             df = pd.read_excel(xl_sheet)
+            
 
             for _, row in df.iterrows():
                 # Create a unique username and password for each delivery boy
@@ -979,6 +1007,7 @@ def add_delivery_boys(request):
                 availability_timings = row['Availability Timings']
                 city=row['City']
                 state=row['State']
+                pincode=row['Pincode']
 
                 delivery_boy = DeliveryBoy.objects.create(
                     user=user,
@@ -989,7 +1018,8 @@ def add_delivery_boys(request):
                     delivery_zones=delivery_zones,
                     availability_timings=availability_timings,
                     city=city,
-                    state=state
+                    state=state,
+                    pincode=pincode
                 )
 
                 # Send an email to the delivery boy with their password
@@ -1005,12 +1035,16 @@ def add_delivery_boys(request):
                 # Use a thread to send the email asynchronously
                 email_thread = threading.Thread(target=sendmail_in_thread, args=(subject, html_message, to_email))
                 email_thread.start()
-                messages.success(request, 'Delivery boys added successfully.')
+            delivery_added_successfully = True 
+               
                 
            
 
         except Exception as e:
             messages.error(request, f'Error processing the Excel sheet: {e}')
+
+        if delivery_added_successfully:
+            messages.success(request, 'Delivery boys added successfully.')
 
     
     return render(request, 'admin/add_delivery_boys.html',{})
@@ -1106,21 +1140,24 @@ def sendmail_in_thread(subject, html_message, to_email):
     email.content_subtype = "html"
     email.send()
 
+
+
 def register_delivery_boy(request):
     if request.method == 'POST':
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        email = request.POST.get('email')
-        contact_number = request.POST.get('contact_no')
-        address = request.POST.get('address')
-        vehicle_type = request.POST.get('vehicle_type')
-        registration_number = request.POST.get('registration')
-        # delivery_zones = request.POST.get('delivery_zones')
-        # availability_timings = request.POST.get('availability_timings')
-
-        random_password = get_user_model().objects.make_random_password()
-
         try:
+            # Get form data
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            email = request.POST.get('email')
+            contact_number = request.POST.get('contact_no')
+            address = request.POST.get('address')
+            vehicle_type = request.POST.get('vehicle_type')
+            registration_number = request.POST.get('registration')
+            
+
+            # Generate a random password
+            random_password = get_user_model().objects.make_random_password()
+
             # Attempt to create a new user
             user = get_user_model().objects.create_user(
                 first_name=first_name,
@@ -1139,9 +1176,11 @@ def register_delivery_boy(request):
                 vehicle_type=vehicle_type,
                 registration_number=registration_number,
                 delivery_zones="kerala",
-                availability_timings="8.00 to 10"
+                availability_timings="8.00 to 10",
+                city="pta",
+                state="kerala",
+                pincode=689693
             )
-            
 
             # Send email with the random password
             subject = 'Welcome to the Delivery Service'
@@ -1152,12 +1191,18 @@ def register_delivery_boy(request):
             email_thread = threading.Thread(target=sendmail_in_thread, args=(subject, html_message, to_email))
             email_thread.start()
 
-            # Redirect to a success URL or page upon successful registration
-            messages.success(request, 'Delivery boys added successfully.')
+            # Check if success message has already been displayed
+            if 'success_message_displayed' not in request.session:
+                # Set a success message
+                messages.success(request, 'Delivery boys added successfully.')
+                # Set a flag in session to indicate that the message has been displayed
+                request.session['success_message_displayed'] = True
+
+            # Redirect to the same URL to clear POST data
+            return redirect('register_delivery_boy')  # Change 'register_delivery_boy' to the appropriate URL name
 
         except IntegrityError:
-            
-            messages.success(request, '')
+            messages.error(request, 'An error occurred while adding the delivery boy.')
 
     # Render the registration page template
     return render(request, 'admin/add_delivery_boys.html')
@@ -1234,7 +1279,8 @@ def add_blog_post(request):
     return render(request, 'sellor/add_blog_post.html', {'form': form})
 
 
-
+@never_cache
+@login_required(login_url="/auth_app/handlelogin/")
 def blog_post_list(request):
     blog_posts = BlogPost.objects.all()
     top_three_posts = BlogPost.objects.order_by('-views')[:3]
@@ -1242,8 +1288,8 @@ def blog_post_list(request):
 
 
 
-
-
+@never_cache
+@login_required(login_url="/auth_app/handlelogin/")
 def blog_post_detail(request, blog_post_id):
     blog_post = get_object_or_404(BlogPost, id=blog_post_id)
     user = request.user
@@ -1267,8 +1313,70 @@ def blog_post_detail(request, blog_post_id):
                     blog_post.likes_count = blog_post.like_set.count()
                     blog_post.save()
                 else:
-                    return HttpResponse("You've already liked this post.")
+                    messages.success(request,"you already like this post")
             else:
                 return HttpResponse("Please log in to like the post.")
     
     return render(request, 'customer/blog_post_detail.html', {'blog_post': blog_post,'var':varr})
+
+
+
+
+
+
+def ship_order(request):
+    pending_assignments = DeliveryAssignment.objects.filter(status='PENDING')
+
+    # Fetch corresponding address details
+    addresses = {}
+    for assignment in pending_assignments:
+        # Retrieve the address associated with the user in the delivery assignment
+        address = Address.objects.filter(user=assignment.user).first()
+        if address:
+            addresses[assignment.id] = address
+
+    context = {
+        'pending_assignments': pending_assignments,
+        'addresses': addresses,
+    }
+    return render(request, 'sellor/ship_order.html', context)
+
+
+
+
+def mark_as_shipped(request, assignment_id):
+    if request.method == 'POST':
+        assignment = DeliveryAssignment.objects.get(id=assignment_id)
+        assignment.status = 'SHIPPED'
+        assignment.save()
+    return redirect('ship_order')
+
+
+def trackmyorder(request):
+    user=request.user
+    order=DeliveryAssignment.objects.filter(user=user)
+    context={
+        'order':order
+    }
+    return render (request,'customer/trackmyorder.html',context)
+
+
+def new_orders(request):
+    delivery_boy = request.user.deliveryboy
+    orders = DeliveryAssignment.objects.filter(delivery_boy=delivery_boy)
+    addresses = {}
+    for assignment in orders:
+        # Retrieve the address associated with the user in the delivery assignment
+        address = Address.objects.filter(user=assignment.user).first()
+        if address:
+            addresses[assignment.id] = address
+
+    context = {
+              'pending_assignments': orders,
+              'addresses': addresses, }
+    
+    return render(request,'Delivery/new_orders.html',context)
+
+
+def out_for_delivery(request):
+    return render(request,'Delivery/out_for_delivery.html')

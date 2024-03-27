@@ -16,7 +16,8 @@ urlpatterns = [
     path('sellor_signup',views.sellor_signup,name='sellor_signup'),
     path('seller-dashboard/', views.seller_dashboard, name='seller_dashboard'),
     path('create-seller-profile/', views.create_seller_profile, name='create_seller_profile'),
-    path('add_address/',views.add_address,name='add_address')
+    path('add_address/',views.add_address,name='add_address'),
+     path('ongoing_bid/',views.ongoing_bid,name='ongoing_bid')
 
 
 ]

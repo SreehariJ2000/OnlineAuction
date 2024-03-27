@@ -1,0 +1,24 @@
+{% extends "sellor/sellor_base.html" %}
+
+{% block style %}
+  <!-- Add any custom styles here -->
+{% endblock style %}
+
+{% block body %}
+  
+{% for assignment in pending_assignments %}
+    {% for address in assignment.user.address_set.all %}
+        <p class="card-text">Order ID: {{ assignment.order.order_id_data }}</p>
+        <p class="card-text">Product Name: {{ assignment.product.product_name }}</p>
+        <p class="card-text">Customer Name: {{ address.name }}</p>
+        <p class="card-text">Address: {{ address.address }}</p>
+        <p class="card-text">Pincode: {{ address.pincode }}</p>
+        <p class="card-text">Locality: {{ address.locality }}</p>
+        <form action="{% url 'mark_shipped' assignment.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Mark as Shipped</button>
+        </form>
+    {% endfor %}
+{% endfor %}
+
+{% endblock body %}

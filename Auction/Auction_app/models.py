@@ -134,20 +134,6 @@ class UserPayment(models.Model):
     
 
 
-class DeliveryBoy(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    contact_number = models.CharField(max_length=15)
-    address = models.TextField()
-    vehicle_type = models.CharField(max_length=50)
-    registration_number = models.CharField(max_length=20)
-    delivery_zones = models.TextField()
-    availability_timings = models.CharField(max_length=100)
-    city = models.CharField(max_length=20)
-    state = models.CharField(max_length=20)
-
-    def __str__(self):
-        return self.user.first_name  # or any other field you want to display
-
 
 
 from django.utils import timezone
@@ -205,3 +191,34 @@ class Like(models.Model):
 class TotalView(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     blog = models.ForeignKey(BlogPost, on_delete=models.CASCADE)
+
+
+
+class DeliveryBoy(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    contact_number = models.CharField(max_length=15)
+    address = models.TextField()
+    vehicle_type = models.CharField(max_length=50)
+    registration_number = models.CharField(max_length=20)
+    delivery_zones = models.TextField()
+    availability_timings = models.CharField(max_length=100)
+    city = models.CharField(max_length=20)
+    state = models.CharField(max_length=20)
+    pincode = models.PositiveIntegerField()
+
+    def __str__(self):
+        return self.user.first_name  # or any other field you want to display
+
+
+
+
+class DeliveryAssignment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    delivery_boy = models.ForeignKey(DeliveryBoy, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    product = models.ForeignKey(AddProduct, on_delete=models.CASCADE)  # Assuming Product model exists
+    assigned_at = models.DateTimeField(default=timezone.now)
+    status = models.CharField(max_length=20, default='PENDING')
+
+    def __str__(self):
+        return f"DeliveryAssignment - {self.order} - {self.delivery_boy} - {self.status}"

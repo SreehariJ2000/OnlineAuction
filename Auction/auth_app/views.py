@@ -448,22 +448,24 @@ def sellor_signup(request):
 
 def seller_dashboard(request):
     if request.user.sellerprofile.is_approved:
+        
+ 
+
+    
+        return render(request, 'sellor/sellor_dashboard.html')
+    else:
+        messages.success(request, 'Your profile is pending admin approval.')
+        return render(request, 'auth/sellor_update_profile.html')
+    
+
+def ongoing_bid(request):
         current_time = timezone.now()
         live_auctions = AddProduct.objects.filter(
         auction_start_datetime__lte=current_time,
         auction_end_datetime__gt=current_time,admin_approval=True
         
     )
- 
-
-    
-        return render(request, 'sellor/sellor_dashboard.html',{'live_auctions': live_auctions})
-    else:
-        messages.success(request, 'Your profile is pending admin approval.')
-        return render(request, 'auth/sellor_update_profile.html')
-    
-
-
+        return render(request,'sellor/ngoing_bid.html',{'live_auctions': live_auctions})
 
 
 

@@ -149,7 +149,8 @@
                 <p style="color: blue; font-weight: bold; font-size: 16px; margin-top: 50px;" > Base Price: {{ product.current_price }}</p>
                 
                 <p><h4> Additional information </h2></p>
-                <p> {{ product.about_product }} </p> <br><br><br><br>
+                  <p>{{ product.about_product|slice:"3:-4" }}</p>
+                  <br><br><br><br>
 
 
                 <!-- Add this where you want to display the timer -->
