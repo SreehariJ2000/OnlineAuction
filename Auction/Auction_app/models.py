@@ -222,3 +222,24 @@ class DeliveryAssignment(models.Model):
 
     def __str__(self):
         return f"DeliveryAssignment - {self.order} - {self.delivery_boy} - {self.status}"
+    
+
+
+
+class OTP(models.Model):
+    delivery_assignment = models.OneToOneField(DeliveryAssignment, on_delete=models.CASCADE)
+    otp = models.CharField(max_length=6)
+
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
+    read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']  # Newest notifications first
+
+    def __str__(self):
+        return f'{self.user.username} - {self.message}'

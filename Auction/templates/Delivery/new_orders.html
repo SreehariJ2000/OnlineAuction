@@ -1,7 +1,6 @@
+<!-- out_for_delivery.html -->
 {% extends "Delivery/deliveryboybase.html" %}
-
 {% block body %}
-
 <div class="container">
     <div class="row">
         {% for assignment in pending_assignments %}
@@ -15,8 +14,9 @@
                             <p class="card-text">Address: {{ address.address }}</p>
                             <p class="card-text">Pincode: {{ address.pincode }}</p>
                             <p class="card-text">Locality: {{ address.locality }}</p>
-                            <form action="{% url "out_for_delivery" %}" method="post">
+                            <form action="{% url 'out_for_delivery' %}" method="post">
                                 {% csrf_token %}
+                                <input type="hidden" name="delivery_assignment_id" value="{{ assignment.pk }}">
                                 <button type="submit" class="btn btn-primary">Start Delivery</button>
                             </form>
                         {% endfor %}
@@ -26,5 +26,7 @@
         {% endfor %}
     </div>
 </div>
-
+{% if otp_sent %}
+    <p>OTP has been sent to the customer's email.</p>
+{% endif %}
 {% endblock body %}

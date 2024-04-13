@@ -55,6 +55,7 @@ urlpatterns = [
     path('blog/<int:blog_post_id>/', views.blog_post_detail, name='blog_post_detail'),
     path('review-status/', views.review_status, name='review_status'),
     path('trackmyorder/', views.trackmyorder, name='trackmyorder'),
+    path('check-notifications/', views.check_notifications, name='check_notifications'),
     
     
     #seller side
@@ -79,7 +80,8 @@ urlpatterns = [
     path('add_delivery_boys/',views.add_delivery_boys,name="deliveryboy"),
     path('Change_password/', views.Change_password, name='Change_password'),
     path('new_orders/',views.new_orders,name='new_orders'),
-    path('out_for_delivery/',views.out_for_delivery,name='out_for_delivery')
+    path('out_for_delivery/',views.out_for_delivery,name='out_for_delivery'),
+    path('verify_otp/',views.verify_otp,name='verify_otp')
 ]
 
 

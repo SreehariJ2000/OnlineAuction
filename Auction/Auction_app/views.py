@@ -829,6 +829,7 @@ def paymenthandler(request):
                 selected_delivery_boy = delivery_boys.first()  
                 print("rrr")
                 print("Selected Delivery Boy:", selected_delivery_boy)
+                
                 delivery_assignment = DeliveryAssignment.objects.create(
                    user=user,
                    delivery_boy=selected_delivery_boy,
@@ -1363,7 +1364,7 @@ def trackmyorder(request):
 
 def new_orders(request):
     delivery_boy = request.user.deliveryboy
-    orders = DeliveryAssignment.objects.filter(delivery_boy=delivery_boy)
+    orders = DeliveryAssignment.objects.filter(delivery_boy=delivery_boy,status='SHIPPED')
     addresses = {}
     for assignment in orders:
         # Retrieve the address associated with the user in the delivery assignment
@@ -1377,6 +1378,88 @@ def new_orders(request):
     
     return render(request,'Delivery/new_orders.html',context)
 
+# views.py
+import random
 
 def out_for_delivery(request):
-    return render(request,'Delivery/out_for_delivery.html')
+    delivery_boy = request.user.deliveryboy
+    orders = DeliveryAssignment.objects.filter(delivery_boy=delivery_boy,status='OUT')
+    addresses = {}
+    for assignment in orders:
+        # Retrieve the address associated with the user in the delivery assignment
+        address = Address.objects.filter(user=assignment.user).first()
+        if address:
+            addresses[assignment.id] = address
+
+    context = {
+              'pending_assignments': orders,
+              'addresses': addresses }
+    if request.method == 'POST':
+        # Generate 6-digit OTP
+        otp = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+
+        # Send email to customer
+        delivery_assignment_id = request.POST.get('delivery_assignment_id')
+        delivery_assignment = DeliveryAssignment.objects.get(pk=delivery_assignment_id)
+        customer_email = delivery_assignment.user.email
+        product_name = delivery_assignment.product.product_name
+
+        message = f'Your {product_name} is out for delivery.'
+        Notification.objects.create(user=delivery_assignment.user, message=message)
+        send_mail(
+            'Your Order is Out for Delivery',
+            f'Your {product_name} is out for delivery. Your OTP is: {otp}',
+            'from@example.com',  # Sender's email
+            [customer_email],  # List of recipient emails
+            fail_silently=False,
+        )
+
+        # Store OTP in the database
+        otp_instance = OTP.objects.create(delivery_assignment=delivery_assignment, otp=otp)
+        delivery_assignment.status='OUT'
+        delivery_assignment.save() 
+
+        return render(request, 'Delivery/out_for_delivery.html', {'otp_sent': True})
+    else:
+        return render(request, 'Delivery/out_for_delivery.html',context)
+
+
+
+from django.http import JsonResponse
+
+def check_notifications(request):
+   
+    notifications = Notification.objects.filter(user=request.user, read=False)
+    notification_count = notifications.count()
+    # Mark notifications as read
+    notifications.update(read=True)
+    # Prepare JSON response
+    response_data = {
+        'notification_count': notification_count,
+        'notifications': [notif.message for notif in notifications]
+    }
+    return JsonResponse(response_data)
+
+
+
+def verify_otp(request):
+    if request.method == 'POST':
+        delivery_assignment_id = request.POST.get('delivery_assignment_id')
+        entered_otp = request.POST.get('otp')
+        try:
+            otp_instance = OTP.objects.get(delivery_assignment_id=delivery_assignment_id)
+        except OTP.DoesNotExist:
+            return HttpResponse('OTP not found.', status=400)
+
+        if entered_otp == otp_instance.otp:
+            delivery_assignment = DeliveryAssignment.objects.get(id=delivery_assignment_id)
+            delivery_assignment.status='DELIVERED'
+            delivery_assignment.save()
+            
+
+           
+            # otp_instance.delete()  
+            return HttpResponse('Delivery successful!')
+        else:
+            # OTP doesn't match
+            return HttpResponse('Invalid OTP.', status=400)

@@ -19,6 +19,8 @@ admin.site.register(DeliveryBoy),
 admin.site.register(Order),
 admin.site.register(UserPayment),
 admin.site.register(Review),
+admin.site.register(OTP),
+admin.site.register(Notification),
 
 admin.site.register(ChatMessage),
 admin.site.register(BlogPost),

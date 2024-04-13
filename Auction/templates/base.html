@@ -51,7 +51,27 @@
   * License: https://bootstrapmade.com/license/
   ======================================================== -->
 
-  {% block style %}{% endblock style %}
+  {% block style %}
+  
+  <style>
+    .notification-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-top: none;
+      width: 200px; /* Adjust as needed */
+      padding: 5px;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+  </style>
+  
+  {% endblock style %}
 </head>
 
 <body>
@@ -81,6 +101,27 @@
           <li><a class="nav-link scrollto {% if request.path == '/upcoming-auctions/' %}active{% endif %}" href="{% url "upcoming_auctions" %}">up comming</a></li>
           <li><a class="nav-link scrollto {% if request.path == '/live-auctions/' %}active{% endif %}" href="{% url "live_auctions" %}">live</a></li>
           <li><a class="nav-link scrollto {% if request.path == '/live-auctions/' %}active{% endif %}" href="{% url "blog_post_list" %}">Blogs</a></li>
+          
+
+
+
+          <li>
+            <a class="nav-link scrollto" href="#">
+                <div class="notification-bell" onclick="toggleNotifications()" style="display: flex; align-items: center;">
+                    <i class="fas fa-bell" style="font-size: 20px;"></i>
+                    <div id="notification-count" class="notification-count" style="margin-left: 5px;">0</div>
+                </div>
+                <div id="notification-dropdown" class="notification-dropdown hidden">
+                    <!-- Notification messages will be added dynamically here -->
+                </div>
+            </a>
+        </li>
+        
+          
+          
+
+
+          
           <li class="dropdown"><a href="#"><span>Hello {{user.first_name}}</span> <i class="bi bi-chevron-right"></i></a>
             <ul>
               <li><a href="{% url "update-profile" %}">My profile</a></li>
@@ -241,7 +282,44 @@
   <script src="{% static 'assets/vendor/waypoints/noframework.waypoints.js' %}"></script>
   <script src="{% static 'assets/vendor/php-email-form/validate.js' %}"></script>
 
-  {% block jsfiles %}     {% endblock jsfiles %}
+  {% block jsfiles %}   
+  
+ <script>
+// Function to check for new notifications
+function checkNotifications() {
+  $.ajax({
+      url: '/check-notifications/',
+      method: 'GET',
+      success: function(data) {
+          $('#notification-count').text(data.notification_count);
+          $('#notification-dropdown').empty();
+          data.notifications.forEach(function(notification) {
+               console.log("notification",+notification)
+              $('#notification-dropdown').append('<div class="notification">' + notification + '</div>');
+          });
+      },
+      error: function(err) {
+          console.error('Error checking notifications:', err);
+      }
+  });
+}
+
+// Function to toggle notification dropdown
+function toggleNotifications() {
+  $('#notification-dropdown').toggleClass('hidden');
+}
+
+// Periodically check for new notifications
+$(document).ready(function() {
+  checkNotifications(); // Initial check
+  setInterval(checkNotifications, 10000); // Poll every 5 seconds (adjust as needed)
+});
+
+  
+ </script>
+  
+  
+  {% endblock jsfiles %}
 
   <!-- Template Main JS File -->
   <script src="{% static 'assets/js/main.js' %}"></script>
