@@ -81,7 +81,8 @@ urlpatterns = [
     path('Change_password/', views.Change_password, name='Change_password'),
     path('new_orders/',views.new_orders,name='new_orders'),
     path('out_for_delivery/',views.out_for_delivery,name='out_for_delivery'),
-    path('verify_otp/',views.verify_otp,name='verify_otp')
+    path('verify_otp/',views.verify_otp,name='verify_otp'),
+    path('show-route/', views.show_route, name='show_route'),
 ]
 
 

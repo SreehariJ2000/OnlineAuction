@@ -1463,3 +1463,38 @@ def verify_otp(request):
         else:
             # OTP doesn't match
             return HttpResponse('Invalid OTP.', status=400)
+
+
+
+
+import folium
+from django.shortcuts import render
+
+# def show_route(request):
+#     # Random latitude and longitude coordinates for Pathanamthitta, Kerala, India
+#     latitude_delivery_boy = 9.2667
+#     longitude_delivery_boy = 76.7833
+
+#     latitude_customer = 9.2647
+#     longitude_customer = 76.7875
+
+#     # Create a Folium map centered on the delivery boy's location
+#     delivery_boy_location = (latitude_delivery_boy, longitude_delivery_boy)
+#     map = folium.Map(location=delivery_boy_location, zoom_start=12)
+
+#     # Add markers for delivery boy and customer locations
+#     folium.Marker(location=delivery_boy_location, popup='Delivery Boy').add_to(map)
+#     folium.Marker(location=(latitude_customer, longitude_customer), popup='Customer').add_to(map)
+
+#     # Add route between delivery boy and customer
+#     folium.PolyLine(locations=[delivery_boy_location, (latitude_customer, longitude_customer)], color='blue').add_to(map)
+
+#     # Render the map in the template
+#     return render(request, 'map.html', {'map': map._repr_html_()})
+
+import folium
+from folium import plugins
+from django.shortcuts import render
+
+def show_route(request):
+    return render(request, 'map.html')

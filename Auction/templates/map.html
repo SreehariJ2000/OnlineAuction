@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+</head>
+<body style="margin: 0px; padding: 0px;">
+    <div id="map" style="display: flex; height: 80vh; width:100vw;"></div>
+    <div>
+        <h5 id="lat">Latitude: </h5>
+        <h5 id="lng">Longitude: </h5>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+    <script>
+        var start_marker = false, end_marker = false;
+        var start, end;
+        var marker = false;
+        var map = L.map('map').setView([51.505, -0.09], 13);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        map.on("click", (e) => {
+            if (start_marker && end_marker){
+                map.removeLayer(end_marker);
+                end_marker = L.marker(e.latlng).addTo(map);
+            }else if (start_marker){
+                end_marker = L.marker(e.latlng).addTo(map);
+                end = e.latlng;
+                getRoute(start, end);
+            }else{
+                map.removeLayer(marker);
+                console.log(e);
+                start_marker = L.marker(e.latlng).addTo(map);
+                start = e.latlng;
+            }
+        });
+
+        // Get current location using Geolocation API
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+            var latlng = [position.coords.latitude, position.coords.longitude];
+            map.setView(latlng, 13); // Set map center to current location
+            marker = L.marker(latlng).addTo(map); // Add marker at current location
+            });
+        } else {
+            alert('Geolocation is not supported by your browser.');
+        }
+
+        function getRoute(start, end){
+            L.Routing.control({
+                waypoints: [
+                  L.latLng(start),
+                  L.latLng(end)
+                ]
+              }).addTo(map);
+        }
+    </script>
+</body>
+</html>

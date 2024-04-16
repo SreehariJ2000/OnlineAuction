@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'auth_app',
     'ckeditor',
     'chartjs',
-    'channels'
+    'channels',
+    
 ]
 
 MIDDLEWARE = [

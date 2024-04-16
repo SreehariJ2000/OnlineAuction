@@ -1,22 +1,47 @@
+{% comment %} import folium
+import requests
 
-<div class="card mb-4">
-    <div class="card-body">
-      <div class="row">
-        <div class="col-lg-6">
-          <h3 class="h6">Payment Method</h3>
-          <p>Visa -1234 <br>
-          Total: $169,98 <span class="badge bg-success rounded-pill">PAID</span></p>
-        </div>
-        <div class="col-lg-6">
-          <h3 class="h6">Billing address</h3>
-          <address>
-            <strong>John Doe</strong><br>
-            1355 Market St, Suite 900<br>
-            San Francisco, CA 94103<br>
-            <abbr title="Phone">P:</abbr> (123) 456-7890
-          </address>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+def get_route_coordinates(origin, destination):
+    url = f'https://api.openrouteservice.org/v2/directions/{mode}?api_key={api_key}&start={origin[1]},{origin[0]}&end={destination[1]},{destination[0]}'
+    response = requests.get(url)
+    data = response.json()
+    route_coordinates = data['features'][0]['geometry']['coordinates']
+    return route_coordinates
+
+def show_route(request):
+    # Coordinates for Kochi, Kerala, India
+    kochi_coords = [9.9312, 76.2673]
+    
+    # Coordinates for Pathanamthitta, Kerala, India
+    pathanamthitta_coords = [9.2647, 76.7875]
+
+    # Get route coordinates using OpenRouteService
+    route_coordinates = get_route_coordinates(kochi_coords, pathanamthitta_coords)
+    
+    # Create a Folium map centered on Kochi
+    map = folium.Map(location=kochi_coords, zoom_start=10)
+
+    # Add markers for Kochi and Pathanamthitta
+    folium.Marker(location=kochi_coords, popup='Kochi').add_to(map)
+    folium.Marker(location=pathanamthitta_coords, popup='Pathanamthitta').add_to(map)
+
+    # Add route between Kochi and Pathanamthitta
+    folium.PolyLine(locations=route_coordinates, color='red').add_to(map)
+
+    # Convert the map to HTML and pass it to the template
+    map_html = map._repr_html_()
+
+    # Render the template with the map
+    return render(request, 'map.html', {'map_html': map_html}) {% endcomment %}
+
+{% comment %} 
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Map</title>
+    {{ map_html|safe }}
+</head>
+<body>
+</body>
+</html> {% endcomment %}
